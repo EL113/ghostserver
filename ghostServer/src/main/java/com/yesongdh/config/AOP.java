@@ -33,8 +33,8 @@ public class AOP {
 		System.out.print(interfaceName + ":");
 		
 		for(Object arg: joinPoint.getArgs())
-	    	System.out.print(arg+"  ");
-	    System.out.print(";");
+	    	System.out.print(arg+",");
+	    System.out.print(";\n");
 	}
 	
 	public Object proceedFunction(ProceedingJoinPoint joinPoint) {
