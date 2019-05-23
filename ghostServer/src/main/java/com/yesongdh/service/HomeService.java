@@ -1,5 +1,6 @@
 package com.yesongdh.service;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +41,37 @@ public class HomeService {
 		return resJson;
 	}
 
-	public JSONObject getContent(String id, String type) {
+	public JSONObject getContent(String id, String type, int page) {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);
 		
-		List<String> content = homeMapper.getContent(id, type);
-		Map<String, Integer> stat = homeMapper.getStat(id, type);
+		Integer size = homeMapper.getContentSize(id, type);
+		if (size == null) {
+			return resJson;
+		}
+		
+		int maxPage = (size % 5 == 0) ? size/5 - 1 : size/5;
+		List<String> content = new LinkedList<>();
+		if (page >= 0 && page <= maxPage) {
+			int startIndex = page * 5;
+			content = homeMapper.getContent(id, type, startIndex);
+		}
+		
+		if (page < 0) {
+			return resJson;
+		}
+		
+		Map<String, Long> stat = homeMapper.getStat(id, type);
+		if (stat == null) {
+			stat = new HashMap<>();
+		}
 		
 		resJson.put("content", content);
-		resJson.put("stat", stat);
-		System.out.println(content + "," + stat);
+		resJson.put("thumbUp", stat.get("thumb_up") == null ? 0 : stat.get("thumb_up"));
+		resJson.put("thumbDown", stat.get("thumb_down") == null ? 0 : stat.get("thumb_down"));
+		resJson.put("collection", stat.get("collection") == null ? 0 : stat.get("collection"));
+		resJson.put("currentPage", page);
+		resJson.put("maxPage", maxPage);
 		return resJson;
 	}
 
@@ -57,6 +79,10 @@ public class HomeService {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);
 		
+		Integer thumbUpCount = homeMapper.getThumbUpCount(id, type);
+		if (thumbUpCount == 0 && status == 1) {
+			return resJson;
+		}
 		int row = status == 0 ? homeMapper.thumbUp(id, type) : homeMapper.thumbUpCancel(id, type);
 		if (row == 0) {
 			resJson.put("code", 1);
@@ -69,6 +95,10 @@ public class HomeService {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);
 		
+		int thumbDownCount = homeMapper.getThumbDownCount(id, type);
+		if (thumbDownCount == 0 && operation == 1) {
+			return resJson;
+		}
 		int row = operation == 0 ? homeMapper.thumbDown(id, type) : homeMapper.thumbDownCancel(id, type);
 		if (row == 0) {
 			resJson.put("code", 1);
@@ -81,6 +111,10 @@ public class HomeService {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);
 		
+		int collectCount = homeMapper.getCollectCount(id, type);
+		if (collectCount == 0 && operation == 1) {
+			return resJson;
+		}
 		int row = operation == 0 ? homeMapper.collect(id, type) : homeMapper.collectCancel(id, type);
 		if (row == 0) {
 			resJson.put("code", 1);
@@ -89,7 +123,8 @@ public class HomeService {
 		return resJson;
 	}
 
-	public JSONObject publish(String id, String title, String author, String content, String type) {
+	//审查表中插入数据
+	public JSONObject publish(String id, String title, String author, String content, String type, String authorId) {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 1);
 		
@@ -100,7 +135,7 @@ public class HomeService {
 		int subId = 0;
 		while(content.length() > 500) {
 			buffer = content.substring(0, 500);
-			int row = homeMapper.publish(id, subId, title, author, type, buffer, desc);
+			int row = homeMapper.publish(id, subId, title, author, type, buffer, desc, authorId);
 			if (row != 1) {
 				homeMapper.resetPublish(id);
 				return resJson;
@@ -111,10 +146,11 @@ public class HomeService {
 		}
 		
 		if (content.length() > 0) {
-			homeMapper.publish(id, subId, title, author, type, content, desc);
+			homeMapper.publish(id, subId, title, author, type, content, desc, authorId);
 		}
 		
 		resJson.put("code", 0);
+		resJson.put("storyId", id);
 		return resJson;
 	}
 
@@ -126,8 +162,8 @@ public class HomeService {
 		List<Content> auditItems = homeMapper.getAuditItem(id);
 		Content content = auditItems.get(0);
 		if (operation == 0) {
-			homeMapper.deleteItem(content);
-			homeMapper.deleteContent(content);
+			homeMapper.deleteItem(id, content.getType());
+			homeMapper.deleteContent(content.getId(), content.getType());
 			homeMapper.insertItem(content);
 			homeMapper.insertStat(id, content.getType());
 			for(int i=0; i < auditItems.size(); i++) {
@@ -139,6 +175,75 @@ public class HomeService {
 		}
 		
 		resJson.put("code", 0);
+		return resJson;
+	}
+
+	public JSONObject auditResult(String ids) {
+		JSONObject resJson = new JSONObject();
+		resJson.put("code", 0);
+		
+		String[] idArray = ids.split(",");
+		List<Integer> resultList = new LinkedList<>();
+		for(String id: idArray) {
+			Integer result = homeMapper.getAuditResult(id);
+			resultList.add(result == null ? 0 : 1);
+		}
+		
+		resJson.put("resultList", resultList);
+		return resJson;
+	}
+
+	public JSONObject searchKeyword(String keyword, int startIndex) {
+		JSONObject resJson = new JSONObject();
+		resJson.put("code", 0);
+		String[] types = {"cp","dp","jl","ly","mj","xy","yc","yy"};
+		int count = 15;
+		
+		List<RecommendItem> list = new LinkedList<>();
+		for(String type: types) {
+			if (list.size() > 15) {
+				break;
+			} 
+			int countIndex = homeMapper.searchKeywordCount(type, keyword);
+			if (startIndex > countIndex) {
+				startIndex -= countIndex;
+				continue;
+			}
+			
+			List<RecommendItem> items = homeMapper.searchKeyword(type, keyword, startIndex, count);
+			list.addAll(items);
+			startIndex = 0;
+		}
+		
+		return null;
+	}
+
+	public JSONObject typeList(String type, int startIndex) {
+		JSONObject resJson = new JSONObject();
+		resJson.put("code", 0);
+		int count = 15;
+
+		List<RecommendItem> items = homeMapper.getTypeList(type, count, startIndex);
+		for(RecommendItem item : items)
+			item.setType(type);
+		resJson.put("result", items);
+		return resJson;
+	}
+
+	public JSONObject delete(String id, String type, String authorId) {
+		JSONObject resJson = new JSONObject();
+		resJson.put("code", 0);
+		
+		RecommendId recommendId = new RecommendId();
+		recommendId.setId(id);
+		recommendId.setId(type);
+		RecommendItem item = homeMapper.getRecommendItem(recommendId);
+		if (authorId.equals(item.getAuthorId())) {
+			homeMapper.deleteStatItem(id, type);
+			homeMapper.deleteItem(id, type);
+			homeMapper.deleteAudit(id);
+			homeMapper.deleteContent(id, type);
+		}
 		return resJson;
 	}
 }

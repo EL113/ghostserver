@@ -2,11 +2,25 @@ package com.yesongdh.bean;
 
 public class RecommendItem {
 	private String id;
+	private String author;
+	private String authorId;
 	private String type;
 	private String title;
 	private String desc;
 	private String createTime;
 	
+	public void setAuthorId(String authorId) {
+		this.authorId = authorId;
+	}
+	public String getAuthorId() {
+		return authorId;
+	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 	public String getId() {
 		return id;
 	}

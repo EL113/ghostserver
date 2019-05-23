@@ -1,11 +1,10 @@
 package com.yesongdh;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.yesongdh.mapper")
+//@ComponentScan(basePackages= {"com.yesongdh.controller"})
 public class GhostServerApplication {
 
 	public static void main(String[] args) {
