@@ -5,10 +5,17 @@ public class Content {
 	private String subId;
 	private String title;
 	private String author;
+	private String authorId;
 	private String type;
 	private String content;
 	private String desc;
 	
+	public void setAuthorId(String authorId) {
+		this.authorId = authorId;
+	}
+	public String getAuthorId() {
+		return authorId;
+	}
 	public String getId() {
 		return id;
 	}

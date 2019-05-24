@@ -162,6 +162,7 @@ public class HomeService {
 		List<Content> auditItems = homeMapper.getAuditItem(id);
 		Content content = auditItems.get(0);
 		if (operation == 0) {
+			homeMapper.deleteAudit(id);
 			homeMapper.deleteItem(id, content.getType());
 			homeMapper.deleteContent(content.getId(), content.getType());
 			homeMapper.insertItem(content);
@@ -171,7 +172,7 @@ public class HomeService {
 				homeMapper.insertContent(item);
 			}
 		} else {
-			homeMapper.auditReason(id, reason);
+			homeMapper.auditReason(id, reason, operation);
 		}
 		
 		resJson.put("code", 0);
@@ -185,8 +186,14 @@ public class HomeService {
 		String[] idArray = ids.split(",");
 		List<Integer> resultList = new LinkedList<>();
 		for(String id: idArray) {
-			Integer result = homeMapper.getAuditResult(id);
-			resultList.add(result == null ? 0 : 1);
+			List<Integer> result = homeMapper.getAuditResult(id);
+			System.out.println("result:"+id+","+result);
+			if (result == null || result.isEmpty()) {
+				resultList.add(1);
+			} else {
+				resultList.add(result.get(0));
+			}
+			
 		}
 		
 		resJson.put("resultList", resultList);

@@ -66,22 +66,22 @@ public interface HomeMapper {
 	@Delete("delete from tab_audit where id = #{id}")
 	int resetPublish(String id);
 	
-	@Select("select id,sub_id,title,author,type,content,`desc` from tab_audit where id = #{id}")
+	@Select("select id,sub_id,title,author, authorId,type,content,`desc` from tab_audit where id = #{id}")
 	List<Content> getAuditItem(String id);
 	
 	@Insert("insert into tab_${content.type}_content (id, sub_id, content)value("
 			+ "#{content.id},#{content.subId},#{content.content})")
 	int insertContent(@Param("content") Content content);
 	
-	@Insert("insert into tab_${content.type}_list (id, title, author, `desc`)value("
-			+ "#{content.id},#{content.title},#{content.author}, #{content.desc})")
+	@Insert("insert into tab_${content.type}_list (id, title, author, `desc`, authorId)value("
+			+ "#{content.id},#{content.title},#{content.author}, #{content.desc}, #{content.authorId})")
 	int insertItem(@Param("content") Content content);
 	
 	@Insert("insert into tab_stat (id, type)value(#{id},#{type})")
 	int insertStat(String id, String type);
 
-	@Update("update tab_audit set reason = #{reason} where id = #{id}")
-	int auditReason(String id, String reason);
+	@Update("update tab_audit set reason = #{reason}, status=#{operation} where id = #{id}")
+	int auditReason(String id, String reason, int operation);
 
 	@Delete("delete from tab_audit where id = #{id}")
 	int deleteAudit(String id);
@@ -95,8 +95,8 @@ public interface HomeMapper {
 	@Delete("delete from tab_${type}_content where id = #{id}")
 	int deleteContent(String id, String type);
 
-	@Select("select 1 from tab_audit where id = #{id}")
-	Integer getAuditResult(String id);
+	@Select("select status from tab_audit where id = #{id}")
+	List<Integer> getAuditResult(String id);
 
 	@Select("select id, title, `desc`, create_time from tab_${type}_list where "
 			+ "title like concat('%', #{keyword}, '%') and limit #{count} offset #{startIndex}")

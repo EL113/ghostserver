@@ -94,7 +94,7 @@ public class HomeController {
 	@PostMapping("/audit/result")
 	@ResponseBody
 	public JSONObject auditResult(
-			@RequestParam(required = true, name = "id") String ids) {
+			@RequestParam(required = true, name = "ids") String ids) {
 		return homeService.auditResult(ids);
 	}
 	
