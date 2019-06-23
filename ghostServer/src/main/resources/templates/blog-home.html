@@ -1,0 +1,256 @@
+	<!DOCTYPE html>
+	<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<!-- Mobile Specific Meta -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Favicon-->
+		<link rel="shortcut icon" href="img/fav.png">
+		<!-- Author Meta -->
+		<meta name="author" content="yesongdh">
+		<!-- Meta Description -->
+		<meta name="description" content="">
+		<!-- Meta Keyword -->
+		<meta name="keywords" content="ghost story web">
+		<!-- meta character set -->
+		<meta charset="UTF-8">
+		<!-- Site Title -->
+		<title>夜半故事</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet"> 
+			<!--
+			CSS
+			============================================= -->
+			<link rel="stylesheet" href="css/linearicons.css">
+			<link rel="stylesheet" href="css/font-awesome.min.css">
+			<link rel="stylesheet" href="css/bootstrap.css">
+			<link rel="stylesheet" href="css/magnific-popup.css">				
+			<link rel="stylesheet" href="css/nice-select.css">							
+			<link rel="stylesheet" href="css/animate.min.css">
+			<link rel="stylesheet" href="css/owl.carousel.css">			
+			<link rel="stylesheet" href="css/jquery-ui.css">			
+			<link rel="stylesheet" href="css/main.css">
+			
+		</head>
+		<body>	
+		  <header id="header">
+		    <div class="container main-menu">
+		    	<div class="row align-items-center justify-content-between d-flex">
+					<div id="logo">
+						<a href="index.html" class="nav-brand fz-18">夜半故事</a>
+					</div>
+					<div class="row align-items-center">
+					<nav id="nav-menu-container">
+					<ul class="nav-menu">
+						<li><a href="#home">首页</a></li>
+						<li><a href="#category">分类</a></li>
+						<li><a href="#recommend">推荐</a></li>
+						<li><a href="#project">app下载</a></li>
+					</ul>
+					</nav><!-- #nav-menu-container -->
+					<a href="./blog-edit.html" class="genric-btn primary circle ml-20">分享故事</a>
+					</div>	    		
+		    	</div>
+		    </div>
+		  </header><!-- #header -->
+
+			<!-- start banner Area -->
+			<section class="banner-area relative blog-home-banner" id="home">	
+				<div class="overlay overlay-bg"></div>
+				<div class="container">				
+					<div class="row d-flex align-items-center justify-content-center">
+						<div class="about-content blog-header-content col-lg-12">
+							<h1 class="text-white">
+								夜半故事
+							</h1>	
+							<p class="text-white">
+								不一样的奇异世界
+							</p>
+							<a href="blog-single.html" class="primary-btn">开始阅读</a>
+						</div>	
+					</div>
+				</div>
+			</section>
+			<!-- End banner Area -->				  
+
+			<!-- Start top-category-widget Area -->
+			<section id="category" class="top-category-widget-area pt-50 pb-50">
+				<div class="container">
+					<div class="content-details">
+						<h2 class="content-title mx-auto text-uppercase mb-20">分类</h2>
+					</div>
+					<div class="row">
+						<div th:each="item : ${category}" class="col-lg-4 mt-20">
+							<div class="single-cat-widget">
+								<div class="content relative">
+									<div class="overlay overlay-bg"></div>
+								    <a th:href="@{http://localhost:7080/ghostServer/list/${item.code}/0}" target="_blank">
+								      <div class="thumb">
+								  		 <img class="content-image img-fluid d-block mx-auto" src="img/blog/cat-widget1.jpg" alt="">
+								  	  </div>
+								      <div class="content-details">
+								        <h4 th:text="${item.title}" class="content-title mx-auto text-uppercase">分类1</h4>
+								      </div>
+								    </a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>	
+			</section>
+			<!-- End top-category-widget Area -->
+			
+			<!-- Start post-content Area -->
+			<section id="recommend" class="post-content-area">
+				<div class="container">
+					<div class="content-details mb-20">
+						<h2 class="content-title mx-auto text-uppercase mb-20">推荐</h2>
+					</div>
+					<div class="row">
+						<div class="col-lg-8 offset-lg-3 posts-list">
+							<div th:each="data : ${recommend.result}" class="single-post row">
+								<div class="col-lg-9 col-md-9">
+									<a class="posts-title" 
+										th:href="@{http://localhost:7080/ghostServer/content/${data.type}/${data.id}/0}">
+										<h3 th:text="${data.title}">Astronomy Binoculars A Great Alternative</h3></a>
+									<p class="excert" th:text="${data.desc}">
+										MCSE boot camps have its supporters and its detractors. Some people do not understand why you should have to spend money on boot camp when you can get the MCSE study materials yourself at a fraction.
+									</p>
+									<a href="blog-single.html" class="primary-btn">View More</a>
+								</div>
+							</div>
+																				
+							<nav class="blog-pagination justify-content-center d-flex">
+								<ul class="pagination">
+									<li class="page-item"><a th:href="@{http://localhost:7080/ghostServer/recommend?page=1}" class="page-link">首页</a></li>
+									<li class="page-item" data-th-classappend="${currentPage == 1} ? 'disabled' : ''">
+										<a th:href="@{http://localhost:7080/ghostServer/recommend?page=${currentPage - 1}}"
+											 class="page-link" aria-label="Previous">
+											<span aria-hidden="true">
+												<span class="lnr lnr-chevron-left"></span>
+											</span>
+										</a>
+									</li>
+									<li class="page-item" data-th-if="${currentPage le 4}" data-th-each="i : ${#numbers.sequence(1, 7)}"
+        								data-th-classappend="${currentPage eq i} ? 'active' : ''">
+										<a th:href="@{http://localhost:7080/ghostServer/recommend?page=${i}}" 
+											class="page-link" th:text="${i}">1</a>
+									</li>
+									<li class="page-item" data-th-if="${currentPage ge 4}" 
+										data-th-each="i : ${#numbers.sequence(currentPage - 3, currentPage + 3)}"
+        								data-th-classappend="${currentPage eq i} ? 'active' : ''">
+										<a th:href="@{http://localhost:7080/ghostServer/recommend?page=${i}}" 
+											class="page-link" th:text="${i}">1</a>
+									</li>
+									<li class="page-item">
+										<a th:href="@{http://localhost:7080/ghostServer/recommend?page=${currentPage + 1}}"
+										 class="page-link" aria-label="Next">
+											<span aria-hidden="true">
+												<span class="lnr lnr-chevron-right"></span>
+											</span>
+										</a>
+									</li>
+								</ul>
+							</nav>
+						</div>
+					</div>
+				</div>	
+			</section>
+			<!-- End post-content Area -->
+			
+			<!-- app download start -->
+			<section class="bg-overlay pt-70 pb-70" id="project">
+				<div class="container">
+					<div class="content-details" style="margin-bottom:30px">
+						<h2 class="content-title mx-auto text-uppercase" style="color: #fff">app下载</h2>
+					</div>
+					<div class="row">
+						<div class="col-12 col-md-6">
+							<figure class="projects-picture">
+								<img src="img/youzhang.png" alt="Youzhang">
+							</figure>
+						</div>
+						<div class="col-12 col-md-6">
+							<div class="projects-details">
+								<div class="projects-badge">
+									Featured
+								</div>
+								<h2 class="projects-title">夜半故事app，欢迎下载</h2>
+								<p class="projects-description">
+									<p>夜半故事是一款专门提供鬼故事的应用，满足您的猎奇心理；</p>
+
+									<p>【功能】</p>
+									
+									<ol>
+										<li>对鬼故事提供分类：短篇、长篇、校园、医院、家里、民间、灵异、原创、内涵；</li>
+	
+										<li>收藏功能</li>
+	
+										<li>应用会自动离线缓存你最近看过的十条内容</li>
+	
+										<li>清除缓存</li>
+	
+										<li>切换主题</li>
+									</ol>
+	
+									<p>【意见反馈】</p>
+	
+									<p>如果对这款应用有想法和建议，请到关于-反馈告诉我，或直接发邮箱1137660217@qq.com
+	
+									本应用源码地址：https://github.com/EL113/GhostStory
+	
+									由于技术原因，有些想实现的功能还未上线，将在下一版本推出，敬请期待
+	
+									本应用仅用于交流学习，并无商业用途，如果有侵权，请告知修改</p>								</p>
+								<div class="projects-cta">
+									<a href="#" class="btn btn-primary" target="_blank">
+										前往下载
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<!-- app download end -->
+
+			<!-- start footer Area -->
+			<footer class="footer-area section-gap">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12">
+							<div class="single-footer-widget text-center">
+								<h4>yesongdh</h4>
+								<p>
+										Copyright &copy; 2019 yesongdh
+								</p>
+								<p>
+									Made with <i class="fa fa-heart-o"></i> By yesongdh
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+			<!-- End footer Area -->		
+
+			<script src="js/vendor/jquery-2.2.4.min.js"></script>
+			<script src="js/popper.min.js"></script>
+			<script src="js/vendor/bootstrap.min.js"></script>			
+			<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhOdIF3Y9382fqJYt5I_sswSrEw5eihAA"></script>			
+  			<script src="js/easing.min.js"></script>			
+			<script src="js/hoverIntent.js"></script>
+			<script src="js/superfish.min.js"></script>	
+			<script src="js/jquery.ajaxchimp.min.js"></script>
+			<script src="js/jquery.magnific-popup.min.js"></script>	
+    		<script src="js/jquery.tabs.min.js"></script>						
+			<script src="js/jquery.nice-select.min.js"></script>	
+            <script src="js/isotope.pkgd.min.js"></script>			
+			<script src="js/waypoints.min.js"></script>
+			<script src="js/jquery.counterup.min.js"></script>
+			<script src="js/simple-skillbar.js"></script>							
+			<script src="js/owl.carousel.min.js"></script>							
+			<script src="js/mail-script.js"></script>	
+			<script src="js/main.js"></script>	
+		</body>
+	</html>

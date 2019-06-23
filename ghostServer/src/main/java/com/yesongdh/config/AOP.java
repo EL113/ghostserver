@@ -1,5 +1,7 @@
 package com.yesongdh.config;
 
+import java.util.Arrays;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,11 +32,7 @@ public class AOP {
 	
 	public void printInvokLog(ProceedingJoinPoint joinPoint) {
 		String interfaceName = joinPoint.getSignature().getName();
-		System.out.print(interfaceName + ":");
-		
-		for(Object arg: joinPoint.getArgs())
-	    	System.out.print(arg+",");
-	    System.out.print(";\n");
+		System.out.print(interfaceName + "in :" + Arrays.toString(joinPoint.getArgs()) + ";");
 	}
 	
 	public Object proceedFunction(ProceedingJoinPoint joinPoint) {

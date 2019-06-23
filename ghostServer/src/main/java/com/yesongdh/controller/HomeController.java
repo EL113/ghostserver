@@ -20,6 +20,7 @@ public class HomeController {
 	public JSONObject getRecommend(
 			@RequestParam(required = true, name = "startIndex") int startIndex) {
 		JSONObject resJson = homeService.getRecommend(startIndex);
+		System.out.println("recomment out:"+resJson.toJSONString());
 		return resJson;
 	}
 	
