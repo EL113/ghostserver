@@ -1,12 +1,15 @@
 package com.yesongdh.bean;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Table(name="story_list")
-public class RecommendItem {
+public class StoryList {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY,generator = "JDBC")
 	private String id;
 	private String author;
 	@Column(name = "author_id")

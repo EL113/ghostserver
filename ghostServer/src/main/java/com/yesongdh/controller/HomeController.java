@@ -10,7 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.yesongdh.service.HomeService;
 
 @RestController
-public class HomeController {
+public class HomeController extends BaseController{
 	
 	@Resource
 	HomeService homeService;
@@ -18,10 +18,13 @@ public class HomeController {
 	@PostMapping("/recommend")
 	@ResponseBody
 	public JSONObject getRecommend(
-			@RequestParam(required = true, name = "startIndex") int startIndex) {
-		JSONObject resJson = homeService.getRecommend(startIndex);
-		System.out.println("recomment out:"+resJson.toJSONString());
-		return resJson;
+			@RequestParam(required = true, name = "page") int page,
+			@RequestParam(required = true, name = "pageSize") int pageSize) {
+		if (page < 0) {
+			return fail(1, "页码不能小于零");
+		}
+		int startIndex = (page - 1) * pageSize;
+		return success(homeService.getRecommend(startIndex, pageSize));
 	}
 	
 	@PostMapping("/content")
@@ -31,8 +34,7 @@ public class HomeController {
 			@RequestParam(required = true, name = "type") String type,
 			@RequestParam(required = true, name = "page") int page) {
 		JSONObject resJson = homeService.getContent(id, type, page);
-		System.out.println(resJson.toJSONString());
-		return resJson;
+		return success(resJson);
 	}
 	
 	@PostMapping("/thumbUp")
@@ -41,7 +43,7 @@ public class HomeController {
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
 			@RequestParam(required = true, name = "operation") int operation) {
-		return homeService.thumbUp(id, type, operation);
+		return success(homeService.thumbUp(id, type, operation));
 	}
 	
 	@PostMapping("/thumbDown")
@@ -50,7 +52,7 @@ public class HomeController {
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
 			@RequestParam(required = true, name = "operation") int operation) {
-		return homeService.thumbDown(id, type, operation);
+		return success(homeService.thumbDown(id, type, operation));
 	}
 	
 	@PostMapping("/collect")
@@ -59,7 +61,7 @@ public class HomeController {
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
 			@RequestParam(required = true, name = "operation") int operation) {
-		return homeService.collect(id, type, operation);
+		return success(homeService.collect(id, type, operation));
 	}
 	
 	@PostMapping("/publish")
@@ -74,14 +76,14 @@ public class HomeController {
 		return homeService.publish(id, title, author, content, type, authorId);
 	}
 	
-	@PostMapping("/delete")
-	@ResponseBody
-	public JSONObject delete(
-			@RequestParam(required = false, name = "id") String id,
-			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "authorId") String authorId) {
-		return homeService.delete(id, type, authorId);
-	}
+//	@PostMapping("/delete")
+//	@ResponseBody
+//	public JSONObject delete(
+//			@RequestParam(required = false, name = "id") String id,
+//			@RequestParam(required = true, name = "type") String type,
+//			@RequestParam(required = true, name = "authorId") String authorId) {
+//		return homeService.delete(id, type, authorId);
+//	}
 	
 	@PostMapping("/audit")
 	@ResponseBody

@@ -13,16 +13,11 @@ import org.apache.ibatis.annotations.Update;
 import com.yesongdh.bean.Content;
 import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
+import com.yesongdh.bean.StoryList;
 
 @Mapper
 public interface HomeMapper {
 
-	@Select("select id, type from tab_stat order by score desc, id asc limit #{pageCount} offset #{startIndex}")
-	List<RecommendId> getRecommendIds(@Param("pageCount") int pageCount, @Param("startIndex") int startIndex);
-	
-	@Select("select id, title, `desc`,author, authorId, create_time from tab_${id.type}_list where id = #{id.id}")
-	RecommendItem getRecommendItem(@Param("id") RecommendId id);
-	
 	@Select("select content from tab_${type}_content where id = #{id} limit 5 offset #{startIndex}")
 	List<String> getContent(@Param("id") String id, @Param("type") String type, int startIndex);
 	

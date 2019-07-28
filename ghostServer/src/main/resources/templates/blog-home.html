@@ -40,15 +40,15 @@
 						<a href="index.html" class="nav-brand fz-18">夜半故事</a>
 					</div>
 					<div class="row align-items-center">
-					<nav id="nav-menu-container">
-					<ul class="nav-menu">
-						<li><a href="#home">首页</a></li>
-						<li><a href="#category">分类</a></li>
-						<li><a href="#recommend">推荐</a></li>
-						<li><a href="#project">app下载</a></li>
-					</ul>
-					</nav><!-- #nav-menu-container -->
-					<a href="./blog-edit.html" class="genric-btn primary circle ml-20">分享故事</a>
+						<nav id="nav-menu-container">
+							<ul class="nav-menu">
+								<li><a href="#home">首页</a></li>
+								<li><a href="#category">分类</a></li>
+								<li><a href="#recommend">推荐</a></li>
+								<li><a href="#project">app下载</a></li>
+							</ul>
+						</nav><!-- #nav-menu-container -->
+					<a href="/ghostServer/edit.html" class="genric-btn primary circle ml-20">分享故事</a>
 					</div>	    		
 		    	</div>
 		    </div>
@@ -59,49 +59,47 @@
 				<div class="overlay overlay-bg"></div>
 				<div class="container">				
 					<div class="row d-flex align-items-center justify-content-center">
-						<div class="about-content blog-header-content col-lg-12">
+						<div class="nav-menu about-content blog-header-content col-lg-12">
 							<h1 class="text-white">
 								夜半故事
 							</h1>	
 							<p class="text-white">
 								不一样的奇异世界
 							</p>
-							<a href="blog-single.html" class="primary-btn">开始阅读</a>
+							<a href="#recommend" class="primary-btn" style="padding:0 30px 0 30px">开始阅读</a>
 						</div>	
 					</div>
 				</div>
 			</section>
 			<!-- End banner Area -->				  
 
-			<!-- Start top-category-widget Area -->
-			<section id="category" class="top-category-widget-area pt-50 pb-50">
+			<!-- Start category Area -->
+			<section id="category" class="top-category-widget-area pt-50">
 				<div class="container">
 					<div class="content-details">
 						<h2 class="content-title mx-auto text-uppercase mb-20">分类</h2>
 					</div>
 					<div class="row">
 						<div th:each="item : ${category}" class="col-lg-4 mt-20">
-							<div class="single-cat-widget">
-								<div class="content relative">
-									<div class="overlay overlay-bg"></div>
-								    <a th:href="@{http://localhost:7080/ghostServer/list/${item.code}/0}" target="_blank">
-								      <div class="thumb">
-								  		 <img class="content-image img-fluid d-block mx-auto" src="img/blog/cat-widget1.jpg" alt="">
-								  	  </div>
-								      <div class="content-details">
-								        <h4 th:text="${item.title}" class="content-title mx-auto text-uppercase">分类1</h4>
-								      </div>
-								    </a>
-								</div>
+							<div class="single-cat-widget content relative">
+								<div class="overlay overlay-bg"></div>
+							    <a th:href="@{'/ghostServer/list?typeCode=${item.code}&index=0'}" target="_blank">
+							      <div class="thumb">
+							  		 <img class="content-image img-fluid d-block mx-auto" src="img/blog/cat-widget1.jpg" alt="">
+							  	  </div>
+							      <div class="content-details">
+							        <h4 th:text="${item.title}" class="content-title mx-auto text-uppercase">分类1</h4>
+							      </div>
+							    </a>
 							</div>
 						</div>
 					</div>
 				</div>	
 			</section>
-			<!-- End top-category-widget Area -->
+			<!-- End category Area -->
 			
-			<!-- Start post-content Area -->
-			<section id="recommend" class="post-content-area">
+			<!-- recommend Area -->
+			<section id="recommend" class="post-content-area pt-50">
 				<div class="container">
 					<div class="content-details mb-20">
 						<h2 class="content-title mx-auto text-uppercase mb-20">推荐</h2>
@@ -156,7 +154,7 @@
 					</div>
 				</div>	
 			</section>
-			<!-- End post-content Area -->
+			<!-- End recommend Area -->
 			
 			<!-- app download start -->
 			<section class="bg-overlay pt-70 pb-70" id="project">

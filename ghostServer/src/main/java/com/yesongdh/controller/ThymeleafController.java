@@ -19,10 +19,20 @@ public class ThymeleafController {
 	@Autowired
 	HomeService homeServce;
 
-    @RequestMapping(value = "/recommend")
-    public String greeting(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                           Model model) {
-    	JSONObject resJson = homeServce.getRecommend((page - 1) * 15);
+//    @RequestMapping(value = "/home.html")
+//    public String greeting(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+//                           Model model) {
+//    	JSONObject resJson = homeServce.getRecommend((page - 1) * 15);
+//    	//TODO 这里可以设置为配置文件进行配置，或者从数据库获取
+//    	List<Map<String, String>> categoryList = setupDefaultCategories();
+//    	
+//        model.addAttribute("recommend", resJson);
+//        model.addAttribute("category", categoryList);
+//        model.addAttribute("currentPage", page);
+//        return "blog-home";
+//    }
+    
+    private List<Map<String, String>> setupDefaultCategories() {
     	String[] titles = {"长篇","短篇","校园","医院","家里","民间","灵异","原创","内涵"};
     	String[] codes = {"cp","dp","cy","yy","jl","mj","ly","yc","nh"};
     	List<Map<String, String>> categoryList = new LinkedList<>();
@@ -33,14 +43,10 @@ public class ThymeleafController {
     		item.put("code", codes[i]);
     		categoryList.add(item);
     	}
-    	
-        model.addAttribute("recommend", resJson);
-        model.addAttribute("category", categoryList);
-        model.addAttribute("currentPage", page);
-        return "blog-home";
-    }
-    
-    @RequestMapping(value = "/content/{type}/{id}/{page}")
+		return categoryList;
+	}
+
+	@RequestMapping(value = "/content")
     public String contentWeb(
     		@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
@@ -49,5 +55,16 @@ public class ThymeleafController {
     	JSONObject resJson = homeServce.getContent(id, type, page);
         model.addAttribute("recommend", resJson);
         return "content";
+    }
+    
+    @RequestMapping(value = "/edit.html")
+    public String edit() {
+    	System.out.println("edit.html");
+        return "blog-edit";
+    }
+    
+    @RequestMapping(value = "/list/type.html")
+    public String listType() {
+        return "blog-edit";
     }
 }

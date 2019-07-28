@@ -244,7 +244,7 @@ $(document).ready(function() {
 
     $('.nav-menu a, #mobile-nav a, .scrollto').on('click', function() {
         if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-            var target = $(this.hash);
+        	var target = $(this.hash);
             if (target.length) {
                 var top_space = 0;
 

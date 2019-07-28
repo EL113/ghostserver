@@ -13,32 +13,23 @@ import com.alibaba.fastjson.JSONObject;
 import com.yesongdh.bean.Content;
 import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
+import com.yesongdh.bean.StoryList;
 import com.yesongdh.mapper.HomeMapper;
+import com.yesongdh.mapper.StoryMapper;
 
 @Service
 public class HomeService {
 	
 	@Autowired
 	HomeMapper homeMapper;
+	
+	@Autowired
+	StoryMapper storyMapper;
 
-	public JSONObject getRecommend(int startIndex) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		int pageCount = 15;
-		
-		List<RecommendId> ids = homeMapper.getRecommendIds(pageCount, startIndex);
-		List<RecommendItem> items = new LinkedList<>();
-		
-		for(RecommendId id: ids) {
-			RecommendItem item = homeMapper.getRecommendItem(id);
-			if (item != null) {
-				item.setType(id.getType());
-				items.add(item);
-			}
-		}
-		
-		resJson.put("result", items);
-		return resJson;
+	public List<StoryList> getRecommend(int startIndex, int pageSize) {
+		List<RecommendId> ids = storyMapper.getRecommendIds(pageSize, startIndex);
+		List<StoryList> items = storyMapper.getRecommendItem(ids);
+		return items;
 	}
 
 	public JSONObject getContent(String id, String type, int page) {
@@ -237,20 +228,20 @@ public class HomeService {
 		return resJson;
 	}
 
-	public JSONObject delete(String id, String type, String authorId) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		
-		RecommendId recommendId = new RecommendId();
-		recommendId.setId(id);
-		recommendId.setId(type);
-		RecommendItem item = homeMapper.getRecommendItem(recommendId);
-		if (authorId.equals(item.getAuthorId())) {
-			homeMapper.deleteStatItem(id, type);
-			homeMapper.deleteItem(id, type);
-			homeMapper.deleteAudit(id);
-			homeMapper.deleteContent(id, type);
-		}
-		return resJson;
-	}
+//	public JSONObject delete(String id, String type, String authorId) {
+//		JSONObject resJson = new JSONObject();
+//		resJson.put("code", 0);
+//		
+//		RecommendId recommendId = new RecommendId();
+//		recommendId.setId(id);
+//		recommendId.setId(type);
+//		RecommendItem item = homeMapper.getRecommendItem(recommendId);
+//		if (authorId.equals(item.getAuthorId())) {
+//			homeMapper.deleteStatItem(id, type);
+//			homeMapper.deleteItem(id, type);
+//			homeMapper.deleteAudit(id);
+//			homeMapper.deleteContent(id, type);
+//		}
+//		return resJson;
+//	}
 }
