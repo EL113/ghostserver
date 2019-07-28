@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yesongdh.mapper.StoryStatMapper">
+  <resultMap id="BaseResultMap" type="com.yesongdh.bean.StoryStat">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="type" jdbcType="CHAR" property="type" />
+    <result column="thumb_up" jdbcType="INTEGER" property="thumbUp" />
+    <result column="thumb_down" jdbcType="INTEGER" property="thumbDown" />
+    <result column="collection" jdbcType="INTEGER" property="collection" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
+  </resultMap>
+</mapper>

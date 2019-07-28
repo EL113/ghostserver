@@ -1,5 +1,7 @@
 package com.yesongdh.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,24 +9,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
+import com.yesongdh.bean.StoryList;
 import com.yesongdh.service.HomeService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api("首页")
 @RestController
 public class HomeController extends BaseController{
 	
 	@Resource
 	HomeService homeService;
 	
+	@ApiOperation(value="首页推荐")
 	@PostMapping("/recommend")
 	@ResponseBody
 	public JSONObject getRecommend(
-			@RequestParam(required = true, name = "page") int page,
+			@RequestParam(required = true, name = "pageNo") int pageNo,
 			@RequestParam(required = true, name = "pageSize") int pageSize) {
-		if (page < 0) {
-			return fail(1, "页码不能小于零");
-		}
-		int startIndex = (page - 1) * pageSize;
-		return success(homeService.getRecommend(startIndex, pageSize));
+		return success(homeService.getRecommend(pageNo, pageSize));
 	}
 	
 	@PostMapping("/content")

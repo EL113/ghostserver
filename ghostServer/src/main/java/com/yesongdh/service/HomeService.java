@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.Content;
 import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
@@ -26,10 +28,11 @@ public class HomeService {
 	@Autowired
 	StoryMapper storyMapper;
 
-	public List<StoryList> getRecommend(int startIndex, int pageSize) {
-		List<RecommendId> ids = storyMapper.getRecommendIds(pageSize, startIndex);
+	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		List<RecommendId> ids = storyMapper.getRecommendIds();
 		List<StoryList> items = storyMapper.getRecommendItem(ids);
-		return items;
+		return new PageInfo<>(items);
 	}
 
 	public JSONObject getContent(String id, String type, int page) {

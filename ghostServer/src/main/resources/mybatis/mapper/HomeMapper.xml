@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yesongdh.mapper.HomeMapper">
-	<select id = "getRecommendItem">
-		select id, title, `desc`,author, authorId, create_time from tab_${id.type}_list where id in 
-		<foreach collection="ids" item="id" index="index", separator=",">
-			 #{id.id}
-		</foreach>
-	</select>
 </mapper>
