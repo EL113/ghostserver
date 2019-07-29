@@ -36,10 +36,6 @@ public class LogAop {
 		return result;
 	}
 	
-	public void printInvokLog(ProceedingJoinPoint joinPoint) {
-		
-	}
-	
 	public Object proceedFunction(ProceedingJoinPoint joinPoint) {
 		try {
 			return joinPoint.proceed();
