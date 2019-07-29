@@ -16,6 +16,7 @@ public class StoryList {
 	private String authorId;
 	private String type;
 	private String title;
+	@Column(name = "`desc`")
 	private String desc;
 	@Column(name = "create_time")
 	private String createTime;

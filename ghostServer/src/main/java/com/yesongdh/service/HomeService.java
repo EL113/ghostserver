@@ -16,8 +16,12 @@ import com.yesongdh.bean.Content;
 import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
 import com.yesongdh.bean.StoryList;
+import com.yesongdh.bean.StoryStat;
 import com.yesongdh.mapper.HomeMapper;
 import com.yesongdh.mapper.StoryMapper;
+import com.yesongdh.mapper.StoryStatMapper;
+
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class HomeService {
@@ -27,12 +31,20 @@ public class HomeService {
 	
 	@Autowired
 	StoryMapper storyMapper;
+	
+	@Autowired
+	StoryStatMapper storyStatMapper;
 
 	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
-		List<RecommendId> ids = storyMapper.getRecommendIds();
-		List<StoryList> items = storyMapper.getRecommendItem(ids);
-		return new PageInfo<>(items);
+		Example example = new Example(StoryStat.class);
+		example.selectProperties("id").orderBy("score").desc().orderBy("id").asc();
+		List<StoryStat> stats = storyStatMapper.selectByExample(example);
+		LinkedList<StoryList> storyList = new LinkedList<StoryList>();
+		for (StoryStat stat: stats) {
+			storyList.add(storyMapper.selectByPrimaryKey(stat.getId()));
+		}
+		return new PageInfo<>(storyList);
 	}
 
 	public JSONObject getContent(String id, String type, int page) {

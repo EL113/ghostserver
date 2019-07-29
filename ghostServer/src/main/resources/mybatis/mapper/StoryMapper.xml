@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yesongdh.mapper.StoryMapper">
-	<select id = "getRecommendItem" resultType="com.yesongdh.bean.StoryList">
-		select * from story_list where id in 
-		<foreach collection="ids" item="id" separator="," open="(" close=")">
-			 #{id.id} 
-		</foreach>
-	</select>
 </mapper>

@@ -15,7 +15,6 @@ import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
 import com.yesongdh.bean.StoryList;
 
-@Mapper
 public interface HomeMapper {
 
 	@Select("select content from tab_${type}_content where id = #{id} limit 5 offset #{startIndex}")
