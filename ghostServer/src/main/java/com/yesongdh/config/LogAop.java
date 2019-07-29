@@ -8,9 +8,12 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Aspect
 @Configuration
-public class AOP {
+@Slf4j
+public class LogAop {
 	
 	@Pointcut("execution(public * com.yesongdh.controller.*.*(..))")
 	public void aopPointCut() {
@@ -19,27 +22,29 @@ public class AOP {
 
 	@Around("aopPointCut()")
 	public Object interfaceInvokLog(ProceedingJoinPoint joinPoint) {
-		printInvokLog(joinPoint);
+		String interfaceName = joinPoint.getSignature().getName();
+		log.info(interfaceName + " params:" + Arrays.toString(joinPoint.getArgs()));
 		
 		long timeMark = System.currentTimeMillis();
 		
 		Object result = proceedFunction(joinPoint);
 		
-		System.out.println("take time:" + (System.currentTimeMillis() - timeMark));
+		log.info(interfaceName + " take time:" + (System.currentTimeMillis() - timeMark));
+		
+		log.info(interfaceName + " result:" + result.toString());
 		
 		return result;
 	}
 	
 	public void printInvokLog(ProceedingJoinPoint joinPoint) {
-		String interfaceName = joinPoint.getSignature().getName();
-		System.out.print(interfaceName + "in :" + Arrays.toString(joinPoint.getArgs()) + ";");
+		
 	}
 	
 	public Object proceedFunction(ProceedingJoinPoint joinPoint) {
 		try {
 			return joinPoint.proceed();
 		} catch (Throwable e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return null;
 	}
