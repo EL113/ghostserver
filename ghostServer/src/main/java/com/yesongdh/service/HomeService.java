@@ -1,5 +1,6 @@
 package com.yesongdh.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,18 +11,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.Content;
 import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
+import com.yesongdh.bean.StoryContent;
+import com.yesongdh.bean.StoryContentDot;
 import com.yesongdh.bean.StoryList;
 import com.yesongdh.bean.StoryStat;
 import com.yesongdh.mapper.HomeMapper;
-import com.yesongdh.mapper.StoryMapper;
+import com.yesongdh.mapper.StoryContentMapper;
+import com.yesongdh.mapper.StoryListMapper;
 import com.yesongdh.mapper.StoryStatMapper;
 
 import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
 
 @Service
 public class HomeService {
@@ -30,55 +36,45 @@ public class HomeService {
 	HomeMapper homeMapper;
 	
 	@Autowired
-	StoryMapper storyMapper;
+	StoryListMapper storyListMapper;
+	
+	@Autowired
+	StoryContentMapper storyContentMapper;
 	
 	@Autowired
 	StoryStatMapper storyStatMapper;
 
 	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
-		Example example = new Example(StoryStat.class);
-		example.selectProperties("id").orderBy("score").desc().orderBy("id").asc();
-		List<StoryStat> stats = storyStatMapper.selectByExample(example);
-		LinkedList<StoryList> storyList = new LinkedList<StoryList>();
-		for (StoryStat stat: stats) {
-			storyList.add(storyMapper.selectByPrimaryKey(stat.getId()));
-		}
-		return new PageInfo<>(storyList);
+		List<StoryList> stats = homeMapper.getStoryListByStatOrder();
+		
+		return new PageInfo<>(stats);
 	}
 
-	public JSONObject getContent(String id, String type, int page) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
+	public StoryContentDot getContent(String id,String type, int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		Example example = new Example(StoryContent.class);
+		example.selectProperties("content");
+		Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("id", id);
+		List<StoryContent> contentList = storyContentMapper.selectByExample(example);
 		
-		Integer size = homeMapper.getContentSize(id, type);
-		if (size == null) {
-			return resJson;
+		Example statExample = new Example(StoryStat.class);
+		Criteria statCriteria = statExample.createCriteria();
+		statCriteria.andEqualTo("id", id).andEqualTo("type", type);
+		StoryStat storyStat = storyStatMapper.selectByExample(statExample).get(0);
+		Page<StoryContent> page = PageHelper.getLocalPage();
+		
+		StringBuffer contentBuffer = new StringBuffer();
+		for(StoryContent content: contentList) {
+			contentBuffer.append(content.getContent());
 		}
 		
-		int maxPage = (size % 5 == 0) ? size/5 - 1 : size/5;
-		List<String> content = new LinkedList<>();
-		if (page >= 0 && page <= maxPage) {
-			int startIndex = page * 5;
-			content = homeMapper.getContent(id, type, startIndex);
-		}
-		
-		if (page < 0) {
-			return resJson;
-		}
-		
-		Map<String, Long> stat = homeMapper.getStat(id, type);
-		if (stat == null) {
-			stat = new HashMap<>();
-		}
-		
-		resJson.put("content", content);
-		resJson.put("thumbUp", stat.get("thumb_up") == null ? 0 : stat.get("thumb_up"));
-		resJson.put("thumbDown", stat.get("thumb_down") == null ? 0 : stat.get("thumb_down"));
-		resJson.put("collection", stat.get("collection") == null ? 0 : stat.get("collection"));
-		resJson.put("currentPage", page);
-		resJson.put("maxPage", maxPage);
-		return resJson;
+		StoryContentDot storyContentDot = new StoryContentDot();
+		storyContentDot.setStoryContent(contentList);
+		storyContentDot.setStoryStat(storyStat);
+		storyContentDot.setPage(page);
+		return storyContentDot;
 	}
 
 	public JSONObject thumbUp(String id, String type, int status) {

@@ -46,16 +46,16 @@ public class ThymeleafController {
 		return categoryList;
 	}
 
-	@RequestMapping(value = "/content")
-    public String contentWeb(
-    		@RequestParam(required = true, name = "id") String id,
-			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "page") int page,
-                           Model model) {
-    	JSONObject resJson = homeServce.getContent(id, type, page);
-        model.addAttribute("recommend", resJson);
-        return "content";
-    }
+//	@RequestMapping(value = "/content")
+//    public String contentWeb(
+//    		@RequestParam(required = true, name = "id") String id,
+//			@RequestParam(required = true, name = "type") String type,
+//			@RequestParam(required = true, name = "page") int page,
+//                           Model model) {
+//    	JSONObject resJson = homeServce.getContent(id, type, page);
+//        model.addAttribute("recommend", resJson);
+//        return "content";
+//    }
     
     @RequestMapping(value = "/edit.html")
     public String edit() {

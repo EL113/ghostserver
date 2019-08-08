@@ -6,13 +6,14 @@ import javax.persistence.*;
 @Table(name = "story_stat")
 public class StoryStat {
     /**
-     * ¹ÊÊÂidºÅ
+     * ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½
      */
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /**
-     * ¹ÊÊÂÀàĞÍ
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     private String type;
 
@@ -27,42 +28,42 @@ public class StoryStat {
     private Integer score;
 
     /**
-     * ´´½¨Ê±¼ä
+     * ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
      */
     @Column(name = "gmt_create")
     private Date gmtCreate;
 
     /**
-     * »ñÈ¡¹ÊÊÂidºÅ
+     * ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½
      *
-     * @return id - ¹ÊÊÂidºÅ
+     * @return id - ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * ÉèÖÃ¹ÊÊÂidºÅ
+     * ï¿½ï¿½ï¿½Ã¹ï¿½ï¿½ï¿½idï¿½ï¿½
      *
-     * @param id ¹ÊÊÂidºÅ
+     * @param id ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * »ñÈ¡¹ÊÊÂÀàĞÍ
+     * ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @return type - ¹ÊÊÂÀàĞÍ
+     * @return type - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     public String getType() {
         return type;
     }
 
     /**
-     * ÉèÖÃ¹ÊÊÂÀàĞÍ
+     * ï¿½ï¿½ï¿½Ã¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param type ¹ÊÊÂÀàĞÍ
+     * @param type ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     public void setType(String type) {
         this.type = type;
@@ -125,18 +126,18 @@ public class StoryStat {
     }
 
     /**
-     * »ñÈ¡´´½¨Ê±¼ä
+     * ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
      *
-     * @return gmt_create - ´´½¨Ê±¼ä
+     * @return gmt_create - ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
      */
     public Date getGmtCreate() {
         return gmtCreate;
     }
 
     /**
-     * ÉèÖÃ´´½¨Ê±¼ä
+     * ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
      *
-     * @param gmtCreate ´´½¨Ê±¼ä
+     * @param gmtCreate ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
      */
     public void setGmtCreate(Date gmtCreate) {
         this.gmtCreate = gmtCreate;

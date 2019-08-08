@@ -21,6 +21,8 @@
                         connectionURL="${spring.datasource.url}"
                         userId="${spring.datasource.username}"
                         password="${spring.datasource.password}">
+                        <property name="useInformationSchema" value="true"/>
+                        <property name="remarks" value="true"/>
         </jdbcConnection>
 
         <!--model包路径-->
@@ -31,7 +33,7 @@
         <javaClientGenerator targetPackage="com.yesongdh.mapper" targetProject="src/main/java"
                              type="XMLMAPPER"/>
         <!--表配置，tableName支持%，表示全部生成-->
-        <table tableName="story_stat" domainObjectName="StoryStat">
+        <table tableName="story_list" domainObjectName="StoryList">
             <!--mysql 配置-->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>

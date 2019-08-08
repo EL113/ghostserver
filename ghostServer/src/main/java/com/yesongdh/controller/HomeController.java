@@ -1,18 +1,12 @@
 package com.yesongdh.controller;
 
-import java.util.List;
-
 import javax.annotation.Resource;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
-import com.yesongdh.bean.StoryList;
 import com.yesongdh.service.HomeService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -23,23 +17,22 @@ public class HomeController extends BaseController{
 	@Resource
 	HomeService homeService;
 	
-	@ApiOperation(value="首页推荐")
+	@ApiOperation(value = "首页推荐")
 	@PostMapping("/recommend")
-	@ResponseBody
 	public JSONObject getRecommend(
 			@RequestParam(required = true, name = "pageNo") int pageNo,
 			@RequestParam(required = true, name = "pageSize") int pageSize) {
 		return success(homeService.getRecommend(pageNo, pageSize));
 	}
 	
+	@ApiOperation(value = "故事详情")
 	@PostMapping("/content")
-	@ResponseBody
 	public JSONObject getContent(
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "page") int page) {
-		JSONObject resJson = homeService.getContent(id, type, page);
-		return success(resJson);
+			@RequestParam(required = true, name = "pageNo") int pageNo,
+			@RequestParam(required = true, name = "pageSize") int pageSize) {
+		return success(homeService.getContent(id, type, pageNo, pageSize));
 	}
 	
 	@PostMapping("/thumbUp")

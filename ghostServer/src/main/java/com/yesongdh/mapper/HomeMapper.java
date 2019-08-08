@@ -17,14 +17,17 @@ import com.yesongdh.bean.StoryList;
 
 public interface HomeMapper {
 
-	@Select("select content from tab_${type}_content where id = #{id} limit 5 offset #{startIndex}")
-	List<String> getContent(@Param("id") String id, @Param("type") String type, int startIndex);
+	@Select("select a.* from story_list a inner join story_stat b where a.id = b.id order by b.score desc")
+	List<StoryList> getStoryListByStatOrder();
 	
-	@Select("select count(1) from tab_${type}_content where id = #{id}")
-	Integer getContentSize(@Param("id") String id, @Param("type") String type);
+//	@Select("select content from tab_${type}_content where id = #{id} limit 5 offset #{startIndex}")
+//	List<String> getContent(@Param("id") String id, @Param("type") String type, int startIndex);
 	
-	@Select("select thumb_up, thumb_down, collection from tab_stat where id = #{id} and type = #{type}")
-	Map<String, Long> getStat(@Param("id") String id, @Param("type") String type);
+//	@Select("select count(1) from story_content where id = #{id}")
+//	Integer getContentSize(@Param("id") String id);
+	
+//	@Select("select thumb_up, thumb_down, collection from tab_stat where id = #{id} and type = #{type}")
+//	Map<String, Long> getStat(@Param("id") String id, @Param("type") String type);
 
 	@Update("update tab_stat set thumb_up = thumb_up + 1 where id = #{id} and type = #{type}")
 	int thumbUp(@Param("id") String id, @Param("type") String type);
