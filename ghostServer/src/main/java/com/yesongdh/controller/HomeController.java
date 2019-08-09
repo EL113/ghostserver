@@ -6,13 +6,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
+import com.yesongdh.common.BaseResponse;
 import com.yesongdh.service.HomeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api("首页")
 @RestController
-public class HomeController extends BaseController{
+public class HomeController extends BaseResponse{
 	
 	@Resource
 	HomeService homeService;
@@ -35,6 +36,7 @@ public class HomeController extends BaseController{
 		return success(homeService.getContent(id, type, pageNo, pageSize));
 	}
 	
+	@ApiOperation(value = "点赞")
 	@PostMapping("/thumbUp")
 	@ResponseBody
 	public JSONObject thumbUp(

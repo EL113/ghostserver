@@ -1,5 +1,10 @@
 package com.yesongdh.bean;
 
+/**
+ * 待删除
+ * @author yesong
+ *
+ */
 public class Content {
 	private String id;
 	private String subId;

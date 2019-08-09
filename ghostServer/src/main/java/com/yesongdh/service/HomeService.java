@@ -21,6 +21,8 @@ import com.yesongdh.bean.StoryContent;
 import com.yesongdh.bean.StoryContentDot;
 import com.yesongdh.bean.StoryList;
 import com.yesongdh.bean.StoryStat;
+import com.yesongdh.common.CommonPage;
+import com.yesongdh.common.CommonPageInfo;
 import com.yesongdh.mapper.HomeMapper;
 import com.yesongdh.mapper.StoryContentMapper;
 import com.yesongdh.mapper.StoryListMapper;
@@ -63,7 +65,8 @@ public class HomeService {
 		Criteria statCriteria = statExample.createCriteria();
 		statCriteria.andEqualTo("id", id).andEqualTo("type", type);
 		StoryStat storyStat = storyStatMapper.selectByExample(statExample).get(0);
-		Page<StoryContent> page = PageHelper.getLocalPage();
+		CommonPageInfo<StoryContent> contentInfo = new CommonPageInfo<StoryContent>(contentList);
+		CommonPage page = contentInfo.getPage();
 		
 		StringBuffer contentBuffer = new StringBuffer();
 		for(StoryContent content: contentList) {
@@ -71,7 +74,7 @@ public class HomeService {
 		}
 		
 		StoryContentDot storyContentDot = new StoryContentDot();
-		storyContentDot.setStoryContent(contentList);
+		storyContentDot.setStoryContent(contentBuffer.toString());
 		storyContentDot.setStoryStat(storyStat);
 		storyContentDot.setPage(page);
 		return storyContentDot;

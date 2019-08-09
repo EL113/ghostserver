@@ -1,22 +1,20 @@
 package com.yesongdh.bean;
 
-import java.util.List;
-
-import com.github.pagehelper.Page;
+import com.yesongdh.common.CommonPage;
 
 public class StoryContentDot {
 	
-	private List<StoryContent> storyContent;
+	private String storyContent;
 	
 	private StoryStat storyStat;
 	
-	private Page<StoryContent> page;
+	private CommonPage page;
 
-	public List<StoryContent> getStoryContent() {
+	public String getStoryContent() {
 		return storyContent;
 	}
 
-	public void setStoryContent(List<StoryContent> storyContent) {
+	public void setStoryContent(String storyContent) {
 		this.storyContent = storyContent;
 	}
 
@@ -28,11 +26,11 @@ public class StoryContentDot {
 		this.storyStat = storyStat;
 	}
 
-	public Page<StoryContent> getPage() {
+	public CommonPage getPage() {
 		return page;
 	}
 
-	public void setPage(Page<StoryContent> page) {
+	public void setPage(CommonPage page) {
 		this.page = page;
 	}
 }

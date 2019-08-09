@@ -4,6 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * 待删除
+ * @author yesong
+ *
+ */
 @Table(name="story_list")
 public class RecommendItem {
 	@Id
