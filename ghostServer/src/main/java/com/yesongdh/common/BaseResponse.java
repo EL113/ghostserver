@@ -11,9 +11,15 @@ public class BaseResponse {
 	
 	private static final String RESULT = "result";
 	
+	protected JSONObject success() {
+		resJson.put(CODE, 0);
+		resJson.put(MSG, "ok");
+		return resJson;
+	}
+	
 	protected JSONObject success(Object response) {
 		resJson.put(CODE, 0);
-		resJson.put(MSG, "");
+		resJson.put(MSG, "ok");
 		resJson.put(RESULT, response);
 		return resJson;
 	}

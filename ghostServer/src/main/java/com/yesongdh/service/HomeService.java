@@ -80,36 +80,31 @@ public class HomeService {
 		return storyContentDot;
 	}
 
-	public JSONObject thumbUp(String id, String type, int status) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		
+	public boolean thumbUp(String id, String type, int op) {
 		Integer thumbUpCount = homeMapper.getThumbUpCount(id, type);
-		if (thumbUpCount == 0 && status == 1) {
-			return resJson;
+		//点赞数不能为负
+		if (thumbUpCount == 0 && op == 1) {
+			return false;
 		}
-		int row = status == 0 ? homeMapper.thumbUp(id, type) : homeMapper.thumbUpCancel(id, type);
+		int row = op == 0 ? homeMapper.thumbUp(id, type) : homeMapper.thumbUpCancel(id, type);
 		if (row == 0) {
-			resJson.put("code", 1);
+			return false;
 		}
 		
-		return resJson;
+		return true;
 	}
 	
-	public JSONObject thumbDown(String id, String type, int operation) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		
+	public boolean thumbDown(String id, String type, int operation) {
 		int thumbDownCount = homeMapper.getThumbDownCount(id, type);
 		if (thumbDownCount == 0 && operation == 1) {
-			return resJson;
+			return false;
 		}
 		int row = operation == 0 ? homeMapper.thumbDown(id, type) : homeMapper.thumbDownCancel(id, type);
 		if (row == 0) {
-			resJson.put("code", 1);
+			return false;
 		}
 		
-		return resJson;
+		return true;
 	}
 	
 	public JSONObject collect(String id, String type, int operation) {

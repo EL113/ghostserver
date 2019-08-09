@@ -36,23 +36,24 @@ public class HomeController extends BaseResponse{
 		return success(homeService.getContent(id, type, pageNo, pageSize));
 	}
 	
-	@ApiOperation(value = "点赞")
+	@ApiOperation(value = "赞")
 	@PostMapping("/thumbUp")
 	@ResponseBody
 	public JSONObject thumbUp(
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "operation") int operation) {
-		return success(homeService.thumbUp(id, type, operation));
+			@RequestParam(required = true, name = "op") int op) {
+		return homeService.thumbUp(id, type, op) ? success() : fail("操作失败");
 	}
 	
+	@ApiOperation(value = "踩")
 	@PostMapping("/thumbDown")
 	@ResponseBody
 	public JSONObject thumbDown(
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "operation") int operation) {
-		return success(homeService.thumbDown(id, type, operation));
+			@RequestParam(required = true, name = "op") int op) {
+		return homeService.thumbDown(id, type, op) ? success() : fail("操作失败");
 	}
 	
 	@PostMapping("/collect")
