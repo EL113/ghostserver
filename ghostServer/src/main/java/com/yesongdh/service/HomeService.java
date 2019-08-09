@@ -1,21 +1,15 @@
 package com.yesongdh.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.Content;
-import com.yesongdh.bean.RecommendId;
 import com.yesongdh.bean.RecommendItem;
 import com.yesongdh.bean.StoryContent;
 import com.yesongdh.bean.StoryContentDot;
@@ -81,12 +75,16 @@ public class HomeService {
 	}
 
 	public boolean thumbUp(String id, String type, int op) {
-		Integer thumbUpCount = homeMapper.getThumbUpCount(id, type);
+		Example example = new Example(StoryStat.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("type", type).andEqualTo("id", id);
+		StoryStat storyStat = storyStatMapper.selectByExample(example).get(0);
+		int thumbUpCount = storyStat != null ? storyStat.getThumbUp() : 0;
 		//点赞数不能为负
 		if (thumbUpCount == 0 && op == 1) {
 			return false;
 		}
-		int row = op == 0 ? homeMapper.thumbUp(id, type) : homeMapper.thumbUpCancel(id, type);
+		int row = op == 0 ? storyStatMapper.thumbUp(id, type) : storyStatMapper.thumbUpCancel(id, type);
 		if (row == 0) {
 			return false;
 		}
@@ -95,11 +93,15 @@ public class HomeService {
 	}
 	
 	public boolean thumbDown(String id, String type, int operation) {
-		int thumbDownCount = homeMapper.getThumbDownCount(id, type);
+		Example example = new Example(StoryStat.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("type", type).andEqualTo("id", id);
+		StoryStat storyStat = storyStatMapper.selectByExample(example).get(0);
+		int thumbDownCount = storyStat != null ? storyStat.getThumbDown() : 0;
 		if (thumbDownCount == 0 && operation == 1) {
 			return false;
 		}
-		int row = operation == 0 ? homeMapper.thumbDown(id, type) : homeMapper.thumbDownCancel(id, type);
+		int row = operation == 0 ? storyStatMapper.thumbDown(id, type) : storyStatMapper.thumbDownCancel(id, type);
 		if (row == 0) {
 			return false;
 		}

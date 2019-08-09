@@ -15,24 +15,6 @@ public interface HomeMapper {
 	@Select("select a.* from story_list a inner join story_stat b where a.id = b.id order by b.score desc")
 	List<StoryList> getStoryListByStatOrder();
 	
-	@Update("update story_stat set thumb_up = thumb_up + 1 where id = #{id} and type = #{type}")
-	int thumbUp(@Param("id") String id, @Param("type") String type);
-	
-	@Select("select thumb_up from story_stat where id = #{id} and type = #{type}")
-	int getThumbUpCount(String id, String type);
-	
-	@Select("select thumb_down from story_stat where id = #{id} and type = #{type}")
-	int getThumbDownCount(String id, String type);
-	
-	@Update("update story_stat set thumb_up = thumb_up - 1 where id = #{id} and type = #{type}")
-	int thumbUpCancel(@Param("id") String id, @Param("type") String type);
-	
-	@Update("update story_stat set thumb_down = thumb_down + 1 where id = #{id} and type = #{type}")
-	int thumbDown(String id, String type);
-	
-	@Update("update story_stat set thumb_down = thumb_down - 1 where id = #{id} and type = #{type}")
-	int thumbDownCancel(String id, String type);
-	
 	@Update("update tab_stat set collection = collection + 1 where id = #{id} and type = #{type}")
 	int collect(String id, String type);
 	
