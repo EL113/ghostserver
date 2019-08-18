@@ -2,10 +2,12 @@ package com.yesongdh.controller;
 
 import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
+import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.common.BaseResponse;
 import com.yesongdh.service.HomeService;
 import io.swagger.annotations.Api;
@@ -56,25 +58,22 @@ public class HomeController extends BaseResponse{
 		return homeService.thumbDown(id, type, op) ? success() : fail("操作失败");
 	}
 	
+	@ApiOperation(value = "收藏")
 	@PostMapping("/collect")
 	@ResponseBody
 	public JSONObject collect(
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "operation") int operation) {
-		return success(homeService.collect(id, type, operation));
+			@RequestParam(required = true, name = "op") int op) {
+		return homeService.collect(id, type, op) ? success() : fail("操作失败");
 	}
 	
+	@ApiOperation(value = "发布故事")
 	@PostMapping("/publish")
 	@ResponseBody
-	public JSONObject publish(
-			@RequestParam(required = false, name = "id") String id,
-			@RequestParam(required = true, name = "title") String title,
-			@RequestParam(required = true, name = "author") String author,
-			@RequestParam(required = true, name = "content") String content,
-			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "authorId") String authorId) {
-		return homeService.publish(id, title, author, content, type, authorId);
+	public JSONObject publish(@RequestBody StoryAudit story) {
+		String id = homeService.publish(story);
+		return id == null ? fail("操作失败") : success(id);
 	}
 	
 //	@PostMapping("/delete")
@@ -86,13 +85,15 @@ public class HomeController extends BaseResponse{
 //		return homeService.delete(id, type, authorId);
 //	}
 	
+	// ---------------------------- 管理系统 ----------------------------------
+	@ApiOperation(value = "审查")
 	@PostMapping("/audit")
 	@ResponseBody
 	public JSONObject audit(
 			@RequestParam(required = true, name = "id") String id,
-			@RequestParam(required = true, name = "operation") int operation,
+			@RequestParam(required = true, name = "op") int op,
 			@RequestParam(required = false, name = "reason") String reason) {
-		return homeService.audit(id, reason, operation);
+		return homeService.audit(id, reason, op) ? success() : fail("操作失败");
 	}
 	
 	@PostMapping("/audit/result")

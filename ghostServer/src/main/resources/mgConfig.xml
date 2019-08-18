@@ -10,11 +10,34 @@
         <!--处理sql中的`符号-->
         <property name="beginningDelimiter" value="`"/>
         <property name="endingDelimiter" value="`"/>
+        
+        <property name="javaFileEncoding" value="UTF-8" />
 
         <!--添加自定义的继承接口-->
         <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
             <property name="mappers" value="com.yesongdh.common.CommonMapper"/>
         </plugin>
+        
+        <!--额外配置的生成tostring()方法的插件，mybatis支持很多插件，这些插件都在 org.mybatis.generator.plugins包下 -->
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+		
+		<!--注释 type="cyc4j.MyComment"这里是我自己写的注释实现类(我将代码写死了，完全忽略下面三个属性)，你们使用时可以删除我的实现，使用默认即可。 -->
+		<commentGenerator type="cyc4j.MyComment">
+
+			<!--是否产生注释，这是总的开关，true表示不生成注释，下面的三个配置都将失效 -->
+			<property name="suppressAllComments" value="false" />
+
+			<!--生成的注释中是否包含时间戳，默认false表示包含，为true则表示不包含 效果如:@mbg.generated Mon Oct 23 
+				11:42:12 CST 2017 -->
+			<property name="suppressDate" value="true" />
+
+			<!--当属性为false或未指定时，生成元素时，所有生成的注释将不包括表和列注释 -->
+			<property name="addRemarkComments" value="true" />
+
+			<!--格式化suppressDate中的时间戳 效果如:@mbg.generated 2017-10-23 11:58:43 -->
+			<!-- <property name="dateFormat" value="yyyy-MM-dd HH:mm:ss" /> -->
+
+		</commentGenerator>
 
         <!--数据源配置-->
         <jdbcConnection driverClass="${spring.datasource.driverClassName}"
@@ -33,7 +56,7 @@
         <javaClientGenerator targetPackage="com.yesongdh.mapper" targetProject="src/main/java"
                              type="XMLMAPPER"/>
         <!--表配置，tableName支持%，表示全部生成-->
-        <table tableName="story_list" domainObjectName="StoryList">
+        <table tableName="story_audit" domainObjectName="StoryAudit">
             <!--mysql 配置-->
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>

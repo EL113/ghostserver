@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yesongdh.mapper.StoryAuditMapper">
+  <resultMap id="BaseResultMap" type="com.yesongdh.bean.StoryAudit">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="sub_id" jdbcType="INTEGER" property="subId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="type" jdbcType="CHAR" property="type" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="brief" jdbcType="VARCHAR" property="brief" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="authorId" jdbcType="VARCHAR" property="authorid" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+</mapper>
