@@ -60,6 +60,12 @@ public class StoryAudit {
     @Column(name = "create_time")
     private Date createTime;
 
+    @Transient
+    private Date createDate0;
+    
+    @Transient
+    private Date createDate1;
+    
     /**
      * 获取故事id号
      *
@@ -249,8 +255,24 @@ public class StoryAudit {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+    
+    public Date getCreateDate0() {
+		return createDate0;
+	}
 
-    @Override
+	public void setCreateDate0(Date createDate0) {
+		this.createDate0 = createDate0;
+	}
+
+	public Date getCreateDate1() {
+		return createDate1;
+	}
+
+	public void setCreateDate1(Date createDate1) {
+		this.createDate1 = createDate1;
+	}
+
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());

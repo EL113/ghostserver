@@ -14,6 +14,7 @@ import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryContent;
 import com.yesongdh.bean.StoryContentDot;
 import com.yesongdh.bean.StoryList;
+import com.yesongdh.bean.StoryReport;
 import com.yesongdh.bean.StoryStat;
 import com.yesongdh.common.CommonPage;
 import com.yesongdh.common.CommonPageInfo;
@@ -21,6 +22,7 @@ import com.yesongdh.mapper.HomeMapper;
 import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.mapper.StoryContentMapper;
 import com.yesongdh.mapper.StoryListMapper;
+import com.yesongdh.mapper.StoryReportMapper;
 import com.yesongdh.mapper.StoryStatMapper;
 
 import tk.mybatis.mapper.entity.Example;
@@ -43,6 +45,9 @@ public class HomeService {
 	
 	@Autowired
 	StoryAuditMapper storyAuditMapper;
+	
+	@Autowired
+	StoryReportMapper storyReportMapper;
 
 	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
@@ -127,6 +132,7 @@ public class HomeService {
 	}
 
 	//审查表中插入数据
+	@Transactional
 	public String publish(StoryAudit story) {
 		String brief = story.getContent().substring(0,50);
 		story.setBrief(brief);
@@ -160,6 +166,24 @@ public class HomeService {
 		}
 		
 		return id;
+	}
+	
+	@Transactional
+	public boolean report(String id, String reason) {
+		StoryReport storyReport = new StoryReport();
+		storyReport.setId((int)System.currentTimeMillis() % 100000);
+		storyReport.setStoryId(Integer.valueOf(id));
+		storyReport.setReason(reason);
+		int row = storyReportMapper.insertSelective(storyReport);
+		return row == 1;
+	}
+	
+	//----------------------------------------- 管理模块 -----------------------------------------
+	
+	public List<StoryAudit> auditList(StoryAudit storyAudit, int page, int pageSize) {
+		PageHelper.startPage(page, pageSize);
+		List<StoryAudit> storyAudits = storyAuditMapper.getStoryAuditsByCondition(storyAudit);
+		return storyAudits;
 	}
 
 	@Transactional
@@ -199,6 +223,22 @@ public class HomeService {
 		return true;
 	}
 	
+
+	public List<StoryReport> reportList(StoryReport storyReport, int page, int pageSize) {
+		PageHelper.startPage(page, pageSize);
+		List<StoryReport> storyReports = storyReportMapper.getStoryReportsByCondition(storyReport);
+		return storyReports;
+	}
+	
+	public boolean handleReport(String id, String handler, String reason) {
+		StoryReport report = new StoryReport();
+		report.setId((int)System.currentTimeMillis() % 1000000);
+		report.setHandler(handler);
+		report.setStoryId(Integer.valueOf(id));
+		int row = storyReportMapper.insertSelective(report);
+		return row == 1;
+	}
+	
 	private StoryList storyAuditToStoryList(StoryAudit storyAudit) {
 		StoryList storyList = new StoryList();
 		storyList.setAuthor(storyAudit.getAuthor());
@@ -225,7 +265,9 @@ public class HomeService {
 		storyContent.setSubId(storyAudit.getSubId());
 		return storyContent;
 	}
-
+	
+	//------------------------------------- 管理模块 end -----------------------------------------
+	
 	public JSONObject auditResult(String ids) {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);
@@ -246,7 +288,7 @@ public class HomeService {
 		resJson.put("resultList", resultList);
 		return resJson;
 	}
-
+	
 	public JSONObject searchKeyword(String keyword, int startIndex) {
 		JSONObject resJson = new JSONObject();
 		resJson.put("code", 0);

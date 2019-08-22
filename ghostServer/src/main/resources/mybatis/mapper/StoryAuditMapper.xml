@@ -17,4 +17,26 @@
     <result column="reason" jdbcType="VARCHAR" property="reason" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
+  
+  <select id="getStoryAuditsByCondition" resultType="StoryAudit">
+  	select * from story_audit where 1 = 1 
+  	<if test="storyAudit.title != null">
+  		and title like #{storyAudit.title}, 
+  	</if>
+  	<if test="storyAudit.author != null">
+  		and author like #{storyAudit.author}, 
+  	</if>
+  	<if test="storyAudit.type != null">
+  		and type = #{storyAudit.type}, 
+  	</if>
+  	<if test="storyAudit.status != null">
+  		and status = #{storyAudit.status}, 
+  	</if>
+  	<if test="storyAudit.createDate0 != null">
+  		and create_time &gt; #{storyAudit.createDate0}, 
+  	</if>
+  	<if test="storyAudit.createDate1 != null">
+  		and create_time &lt; #{storyAudit.createDate1}, 
+  	</if>
+  </select>
 </mapper>
