@@ -1,6 +1,12 @@
 package com.yesongdh.controller;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,11 +16,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryReport;
 import com.yesongdh.common.BaseResponse;
+import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.service.HomeService;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
 
 @Api("首页")
 @RestController
@@ -132,30 +141,28 @@ public class HomeController extends BaseResponse{
 		return homeService.handleReport(id, handler, reason) ? success() : fail("操作失败");
 	}
 	
+	@ApiOperation(value = "删除故事")
+	@PostMapping("/story/delete")
+	@ResponseBody
+	public JSONObject deleteStory(
+			@RequestParam(required = true, name = "id") String id) {
+		return homeService.deleteStory(id) ? success() : fail("操作失败");
+	}
+	
 	//------------------------------------------- 管理模块 -----------------------------------------------
 	
-	@PostMapping("/audit/result")
-	@ResponseBody
-	public JSONObject auditResult(
-			@RequestParam(required = true, name = "ids") String ids) {
-		return homeService.auditResult(ids);
-	}
+	//------------------------------------------- 定时器 -------------------------------------------------
 	
-	@PostMapping("/search")
-	@ResponseBody
-	public JSONObject search(
-			@RequestParam(required = true, name = "keyword") String keyword,
-			@RequestParam(required = true, name = "startIndex") int startIndex) {
-		return homeService.searchKeyword(keyword, startIndex);
-	}
+	@Autowired
+	StoryAuditMapper storyAuditMapper;
 	
-	@PostMapping("/type/list")
-	@ResponseBody
-	public JSONObject typeList(
-			@RequestParam(required = true, name = "type") String type,
-			@RequestParam(required = true, name = "startIndex") int startIndex) {
-		JSONObject resJson = homeService.typeList(type, startIndex);
-		System.out.println(resJson.toJSONString());
-		return resJson;
+	@Scheduled(cron = "* * * 1 * *")
+	public void deleteInvalidStory() {
+		Example example = new Example(StoryAudit.class);
+		Criteria criteria = example.createCriteria();
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_MONTH, -30);
+		criteria.andLessThan("create_time", calendar.getTime());
+		storyAuditMapper.deleteByExample(example);
 	}
 }

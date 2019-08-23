@@ -1,15 +1,12 @@
 package com.yesongdh.service;
 
-import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.yesongdh.bean.RecommendItem;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryContent;
 import com.yesongdh.bean.StoryContentDot;
@@ -265,81 +262,19 @@ public class HomeService {
 		storyContent.setSubId(storyAudit.getSubId());
 		return storyContent;
 	}
+
+	public boolean deleteStory(String id) {
+		StoryList storyList = new StoryList();
+		storyList.setId(Integer.valueOf(id));
+		
+		StoryContent storyContent = new StoryContent();
+		storyContent.setId(Integer.valueOf(id));
+		
+		storyListMapper.delete(storyList);
+		storyStatMapper.deleteByPrimaryKey(id);
+		storyContentMapper.delete(storyContent);
+		return true;
+	}
 	
 	//------------------------------------- 管理模块 end -----------------------------------------
-	
-	public JSONObject auditResult(String ids) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		
-		String[] idArray = ids.split(",");
-		List<Integer> resultList = new LinkedList<>();
-		for(String id: idArray) {
-			List<Integer> result = homeMapper.getAuditResult(id);
-			System.out.println("result:"+id+","+result);
-			if (result == null || result.isEmpty()) {
-				resultList.add(1);
-			} else {
-				resultList.add(result.get(0));
-			}
-			
-		}
-		
-		resJson.put("resultList", resultList);
-		return resJson;
-	}
-	
-	public JSONObject searchKeyword(String keyword, int startIndex) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		String[] types = {"cp","dp","jl","ly","mj","xy","yc","yy"};
-		int count = 15;
-		
-		List<RecommendItem> list = new LinkedList<>();
-		for(String type: types) {
-			if (list.size() > 15) {
-				break;
-			} 
-			int countIndex = homeMapper.searchKeywordCount(type, keyword);
-			if (startIndex > countIndex) {
-				startIndex -= countIndex;
-				continue;
-			}
-			
-			List<RecommendItem> items = homeMapper.searchKeyword(type, keyword, startIndex, count);
-			list.addAll(items);
-			startIndex = 0;
-		}
-		
-		return null;
-	}
-
-	public JSONObject typeList(String type, int startIndex) {
-		JSONObject resJson = new JSONObject();
-		resJson.put("code", 0);
-		int count = 15;
-
-		List<RecommendItem> items = homeMapper.getTypeList(type, count, startIndex);
-		for(RecommendItem item : items)
-			item.setType(type);
-		resJson.put("result", items);
-		return resJson;
-	}
-
-//	public JSONObject delete(String id, String type, String authorId) {
-//		JSONObject resJson = new JSONObject();
-//		resJson.put("code", 0);
-//		
-//		RecommendId recommendId = new RecommendId();
-//		recommendId.setId(id);
-//		recommendId.setId(type);
-//		RecommendItem item = homeMapper.getRecommendItem(recommendId);
-//		if (authorId.equals(item.getAuthorId())) {
-//			homeMapper.deleteStatItem(id, type);
-//			homeMapper.deleteItem(id, type);
-//			homeMapper.deleteAudit(id);
-//			homeMapper.deleteContent(id, type);
-//		}
-//		return resJson;
-//	}
 }
