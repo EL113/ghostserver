@@ -14,7 +14,7 @@ import com.yesongdh.service.HomeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-@Api("管理系统")
+@Api
 @RestController
 public class ManagerController extends BaseResponse{
 	

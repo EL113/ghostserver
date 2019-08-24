@@ -18,7 +18,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   
-  <select id="getStoryAuditsByCondition" resultType="StoryAudit">
+  <select id="getStoryAuditsByCondition" resultType="com.yesongdh.bean.StoryAudit">
   	select * from story_audit where 1 = 1 
   	<if test="storyAudit.title != null">
   		and title like #{storyAudit.title}, 

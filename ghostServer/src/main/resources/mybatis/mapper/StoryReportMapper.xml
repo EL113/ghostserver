@@ -15,7 +15,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   
-  <select id="getStoryReportByCondition" resultType="StoryReport">
+  <select id="getStoryReportByCondition" resultType="com.yesongdh.bean.StoryReport">
   	select * from story_report where 1 = 1 
   	<if test="storyReport.status != null">
   		and status = #{storyReport.status}, 
