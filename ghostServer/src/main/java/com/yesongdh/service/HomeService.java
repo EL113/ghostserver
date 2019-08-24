@@ -15,6 +15,8 @@ import com.yesongdh.bean.StoryReport;
 import com.yesongdh.bean.StoryStat;
 import com.yesongdh.common.CommonPage;
 import com.yesongdh.common.CommonPageInfo;
+import com.yesongdh.common.ScoreStrategy;
+import com.yesongdh.common.ScoreStrategyImp;
 import com.yesongdh.mapper.HomeMapper;
 import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.mapper.StoryContentMapper;
@@ -95,10 +97,17 @@ public class HomeService {
 		}
 		
 		storyStat.setThumbUp(op == 0 ? thumbUpCount+1 : thumbUpCount-1);
+		calScore(storyStat);
 		int row = storyStatMapper.updateByPrimaryKeySelective(storyStat);
 		if (row == 0) return false;
 		
 		return true;
+	}
+	
+	private void calScore(StoryStat storyStat) {
+		ScoreStrategy scoreStrategy = new ScoreStrategyImp();
+		int score = scoreStrategy.calScore(storyStat);
+		storyStat.setScore(score);
 	}
 	
 	public boolean thumbDown(String id, String type, int op) {
@@ -108,6 +117,7 @@ public class HomeService {
 		if (thumbDownCount == 0 && op == 1)	return false;
 		
 		storyStat.setThumbDown(op == 0 ? thumbDownCount+1 : thumbDownCount-1);
+		calScore(storyStat);
 		int row = storyStatMapper.updateByPrimaryKeySelective(storyStat);		
 		if (row == 0) return false;
 		
@@ -122,6 +132,7 @@ public class HomeService {
 		if (collectCount == 0 && op == 1)	return false;
 		
 		storyStat.setCollection(op == 0 ? collectCount + 1 : collectCount - 1);
+		calScore(storyStat);
 		int row = storyStatMapper.updateByPrimaryKey(storyStat);
 		if (row == 0) return false;
 		
@@ -135,6 +146,7 @@ public class HomeService {
 		story.setBrief(brief);
 		String id = story.getId() == null ? String.valueOf(System.currentTimeMillis() % 100000000) 
 				: String.valueOf(story.getId());
+		story.setId(Integer.valueOf(id));
 		
 		Example example = new Example(StoryAudit.class);
 		Criteria criteria = example.createCriteria();
@@ -159,6 +171,8 @@ public class HomeService {
 		}
 		
 		if (bufferContent.length() > 0) {
+			story.setSubId(subId);
+			story.setContent(bufferContent);
 			storyAuditMapper.insertSelective(story);
 		}
 		
@@ -168,7 +182,7 @@ public class HomeService {
 	@Transactional
 	public boolean report(String id, String reason) {
 		StoryReport storyReport = new StoryReport();
-		storyReport.setId((int)System.currentTimeMillis() % 100000);
+		storyReport.setId(Integer.valueOf(id));
 		storyReport.setStoryId(Integer.valueOf(id));
 		storyReport.setReason(reason);
 		int row = storyReportMapper.insertSelective(storyReport);

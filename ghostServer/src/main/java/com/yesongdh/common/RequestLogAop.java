@@ -64,15 +64,16 @@ public class RequestLogAop {
 	 	String timestamp = request.getHeader("timestamp");
 	 	String token = request.getHeader("token");
 	 	String uri = request.getRequestURI();
-	 	if (StringUtils.isEmpty(timestamp) || StringUtils.isEmpty(token)) {
-			throw new BadRequestException("无效请求头");
-		}
 	 	
 	 	//不验证token
 	 	Method method = ((MethodSignature)joinPoint.getSignature()).getMethod();
 	 	IgnoreToken ignoreToken = method.getAnnotation(IgnoreToken.class);
 	 	if (ignoreToken != null) {
 			return;
+		}
+	 	
+	 	if (StringUtils.isEmpty(timestamp) || StringUtils.isEmpty(token)) {
+			throw new BadRequestException("无效请求头");
 		}
 	 	
 	 	if (!uri.contains("openapi") || Long.valueOf(timestamp) < System.currentTimeMillis() - 3000) {

@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,7 +37,7 @@ public class OpenApiController extends BaseResponse{
 	HomeService homeService;
 	
 	@ApiOperation(value = "首页推荐")
-	@PostMapping("/recommend")
+	@GetMapping("/recommend")
 	@IgnoreToken
 	@ResponseBody
 	public JSONObject getRecommend(
@@ -45,7 +47,9 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "故事详情")
-	@PostMapping("/content")
+	@GetMapping("/content")
+	@IgnoreToken
+	@ResponseBody
 	public JSONObject getContent(
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "type") String type,
@@ -55,7 +59,8 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "赞")
-	@PostMapping("/thumbUp")
+	@PutMapping("/thumbUp")
+	@IgnoreToken
 	@ResponseBody
 	public JSONObject thumbUp(
 			@RequestParam(required = true, name = "id") String id,
@@ -65,7 +70,8 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "踩")
-	@PostMapping("/thumbDown")
+	@PutMapping("/thumbDown")
+	@IgnoreToken
 	@ResponseBody
 	public JSONObject thumbDown(
 			@RequestParam(required = true, name = "id") String id,
@@ -75,7 +81,8 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "收藏")
-	@PostMapping("/collect")
+	@PutMapping("/collect")
+	@IgnoreToken
 	@ResponseBody
 	public JSONObject collect(
 			@RequestParam(required = true, name = "id") String id,
@@ -86,6 +93,7 @@ public class OpenApiController extends BaseResponse{
 	
 	@ApiOperation(value = "发布故事")
 	@PostMapping("/publish")
+	@IgnoreToken
 	@ResponseBody
 	public JSONObject publish(@RequestBody StoryAudit story) {
 		String id = homeService.publish(story);
@@ -94,6 +102,7 @@ public class OpenApiController extends BaseResponse{
 	
 	@ApiOperation(value = "举报")
 	@PostMapping("/report")
+	@IgnoreToken
 	@ResponseBody
 	public JSONObject publish(@RequestParam("id") String id, @RequestParam("reason") String reason) {
 		return homeService.report(id, reason) ? success(id) : fail("操作失败");
