@@ -14,10 +14,10 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-        <module>ghost-api</module>
+        <module>ghost-openapi</module>
         <module>ghost-web</module>
-        <module>crm-service</module>
-        <module>crm-commons</module>
+        <module>ghost-service</module>
+        <module>ghost-commons</module>
     </modules>
 	
 	<name>ghostServerv2</name>
@@ -27,135 +27,120 @@
 		<java.version>1.8</java.version>
 		<swagger.version>2.9.2</swagger.version>
 		<mybatis.version>2.0.0</mybatis.version>
-		<tk.mybatis>3.4.3</tk.mybatis>
+		<tk.mybatis>2.1.5</tk.mybatis>
 		<page.helper>1.2.12</page.helper>
 		<druid.version>1.1.3</druid.version>
 		<fast.json>1.2.55</fast.json>
-		<mybatis.version>1.3.5</mybatis.version>
-		<mysql.version>8.0.15</mysql.version>
+		<tk.mybatis.mapper>4.1.5</tk.mybatis.mapper>
+		<springboot.version>2.1.7.RELEASE</springboot.version>
 	</properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions><!-- 去掉springboot默认配置 -->  
-		       <exclusion>  
-		           <groupId>org.springframework.boot</groupId>  
-		           <artifactId>spring-boot-starter-logging</artifactId>  
-		       </exclusion>  
-		   </exclusions>
-		</dependency>
-		<dependency> <!-- 引入log4j2依赖 -->  
-		    <groupId>org.springframework.boot</groupId>  
-		    <artifactId>spring-boot-starter-log4j2</artifactId>  
-		</dependency> 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-integration</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>${mybatis.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>tk.mybatis</groupId>
-			<artifactId>mapper-spring-boot-starter</artifactId>
-			<version>${tk.mybatis}</version>
-		</dependency>
-		<dependency>
-            <groupId>com.github.pagehelper</groupId>
-            <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>${page.helper}</version>
-        </dependency>
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>${swagger.version}</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
-		<dependency>
-		    <groupId>com.alibaba</groupId>
-		    <artifactId>fastjson</artifactId>
-		    <version>${fast.json}</version>
-		</dependency>
-		<dependency>  
-            <groupId>com.alibaba</groupId>  
-            <artifactId>druid</artifactId>  
-            <version>${druid.version}</version>  
-        </dependency> 
-        <!-- httpclient -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>  
-		    <groupId>org.springframework.boot</groupId>  
-		    <artifactId>spring-boot-starter-thymeleaf</artifactId>  
-		</dependency>  
-		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
-		</dependency>
-		<dependency>
-            <groupId>tk.mybatis</groupId>
-            <artifactId>mapper</artifactId>
-            <version>${tk.mybatis}</version>
-        </dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
+	<!-- 子模块继承以下依赖 -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
 				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-			    <groupId>org.mybatis.generator</groupId>
-			    <artifactId>mybatis-generator-maven-plugin</artifactId>
-			    <version>${mybatis.version}</version>
-			    <configuration>
-			        <configurationFile>${basedir}/src/main/resources/mgConfig.xml</configurationFile>
-			        <overwrite>true</overwrite>
-			        <verbose>true</verbose>
-			    </configuration>
-			</plugin>
-		</plugins>
-	</build>
+				<artifactId>spring-boot-starter-web</artifactId>
+				<version>${springboot.version}</version>
+				<exclusions><!-- 去掉springboot默认配置 -->  
+			       <exclusion>  
+			           <groupId>org.springframework.boot</groupId>  
+			           <artifactId>spring-boot-starter-logging</artifactId>  
+			       </exclusion>  
+			   </exclusions>
+			</dependency>
+			<dependency> <!-- 引入log4j2依赖 -->  
+			    <groupId>org.springframework.boot</groupId>  
+			    <artifactId>spring-boot-starter-log4j2</artifactId>  
+			    <version>${springboot.version}</version>
+			</dependency> 
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-redis</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-aop</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-integration</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-jdbc</artifactId>
+				<version>${springboot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>${mybatis.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>${swagger.version}</version>
+			</dependency>
+	
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+	            <groupId>com.github.pagehelper</groupId>
+	            <artifactId>pagehelper-spring-boot-starter</artifactId>
+	            <version>${page.helper}</version>
+	        </dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger-ui</artifactId>
+				<version>${swagger.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+			<dependency>
+			    <groupId>com.alibaba</groupId>
+			    <artifactId>fastjson</artifactId>
+			    <version>${fast.json}</version>
+			</dependency>
+			<dependency>  
+	            <groupId>com.alibaba</groupId>  
+	            <artifactId>druid</artifactId>  
+	            <version>${druid.version}</version>  
+	        </dependency> 
+	        <!-- httpclient -->
+	        <dependency>
+	            <groupId>org.apache.httpcomponents</groupId>
+	            <artifactId>httpclient</artifactId>
+	        </dependency>
+	        <dependency>  
+			    <groupId>org.springframework.boot</groupId>  
+			    <artifactId>spring-boot-starter-thymeleaf</artifactId>  
+			</dependency>  
+			<dependency>
+	            <groupId>org.springframework.boot</groupId>
+	            <artifactId>spring-boot-devtools</artifactId>
+	            <optional>true</optional>
+	        </dependency>
+			<dependency>
+	            <groupId>tk.mybatis</groupId>
+	            <artifactId>mapper</artifactId>
+	            <version>${tk.mybatis.mapper}</version>
+	        </dependency>
+	        <dependency>
+				<groupId>tk.mybatis</groupId>
+				<artifactId>mapper-spring-boot-starter</artifactId>
+				<version>${tk.mybatis}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
