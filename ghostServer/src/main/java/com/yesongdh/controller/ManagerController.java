@@ -1,6 +1,10 @@
 package com.yesongdh.controller;
 
 import javax.annotation.Resource;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,4 +69,36 @@ public class ManagerController extends BaseResponse{
 		return homeService.deleteStory(id) ? success() : fail("操作失败");
 	}
 	
+	//---------------------------------------------------- 登录 ---------------------------------------
+	@ApiOperation(value = "登录")
+	@PostMapping("/admin/login")
+	@ResponseBody
+	public JSONObject adminLogin(
+			@RequestParam(required = true, name = "name") String name,
+			@RequestParam(required = true, name = "passwd") String passwd) {
+		Subject subject = SecurityUtils.getSubject();
+		UsernamePasswordToken userToken = new UsernamePasswordToken(name, passwd);
+		subject.login(userToken);
+		return success();
+	}
+	
+	@ApiOperation(value = "登出")
+	@PostMapping("/admin/logout")
+	@ResponseBody
+	public JSONObject adminLogout() {
+		SecurityUtils.getSubject().logout();
+		return success("退出登录成功");
+	}
+	
+	@ApiOperation(value = "授权错误")
+	@PostMapping("/admin/error")
+	@ResponseBody
+	public JSONObject adminError(
+			@RequestParam(required = true, name = "name") String name,
+			@RequestParam(required = true, name = "passwd") String passwd) {
+		Subject subject = SecurityUtils.getSubject();
+		UsernamePasswordToken userToken = new UsernamePasswordToken(name, passwd);
+		subject.login(userToken);
+		return success();
+	}
 }
