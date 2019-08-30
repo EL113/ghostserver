@@ -3,13 +3,10 @@ package com.yesongdh.config;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.servlet.Filter;
-
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
-import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.shiro.mgt.SecurityManager;
-
 import com.yesongdh.shiro.AuthPermissionFilter;
 import com.yesongdh.shiro.KickoutSessionFilter;
 import com.yesongdh.shiro.ShiroRealm;

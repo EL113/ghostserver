@@ -38,6 +38,9 @@ public class Admin {
     @Column(name = "gmt_modify")
     private Date gmtModify;
     
+    @Column(name = "role")
+    private String role;
+    
     @Transient
     private List<Role> roles;
 
@@ -144,7 +147,23 @@ public class Admin {
     public void setGmtModify(Date gmtModify) {
         this.gmtModify = gmtModify;
     }
+    
+    public List<Role> getRoles() {
+		return roles;
+	}
+    
+    public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
 
+    public String getRole() {
+		return role;
+	}
+    
+    public void setRole(String role) {
+		this.role = role;
+	}
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

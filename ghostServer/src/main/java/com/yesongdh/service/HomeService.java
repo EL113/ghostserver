@@ -1,12 +1,20 @@
 package com.yesongdh.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.yesongdh.bean.Admin;
+import com.yesongdh.bean.Role;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryContent;
 import com.yesongdh.bean.StoryContentDot;
@@ -17,6 +25,7 @@ import com.yesongdh.common.CommonPage;
 import com.yesongdh.common.CommonPageInfo;
 import com.yesongdh.common.ScoreStrategy;
 import com.yesongdh.common.ScoreStrategyImp;
+import com.yesongdh.mapper.AdminMapper;
 import com.yesongdh.mapper.HomeMapper;
 import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.mapper.StoryContentMapper;
@@ -47,6 +56,9 @@ public class HomeService {
 	
 	@Autowired
 	StoryReportMapper storyReportMapper;
+	
+	@Autowired
+	AdminMapper adminMapper;
 
 	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
@@ -288,6 +300,47 @@ public class HomeService {
 		storyStatMapper.deleteByPrimaryKey(id);
 		storyContentMapper.delete(storyContent);
 		return true;
+	}
+
+	public boolean adminAdd(Admin admin) {
+		List<Role> roles = admin.getRoles();
+		if (roles == null || admin.getRoles().isEmpty()) {
+			return false;
+		}
+		
+		//设置用户信息
+		int adminId = (int) (System.currentTimeMillis() % 1000000);
+		String roleName = roles.size() == 1 ? roles.get(0).getRoleName() : getRoleName(roles);
+		admin.setRole(roleName);
+		admin.setId(adminId);
+		adminMapper.insert(admin);
+		
+		//设置新角色信息和权限信息
+		adminMapper.insertRole(roleName);
+		List<String> permsList = setPermList(roles);
+		adminMapper.insertRolePerms(adminId, permsList);
+		return true;
+	}
+
+	private List<String> setPermList(List<Role> roles) {
+		Set<String> permsList = new HashSet<>();
+		for (Role role : roles) {
+			permsList.addAll(role.getPermissions());
+		}
+		return new ArrayList<String>(permsList);
+	}
+
+	private String getRoleName(List<Role> roles) {
+		StringBuffer roleName = new StringBuffer();
+		for (int i = 0; i < roles.size(); i++) {
+			Role role = roles.get(0);
+			if (i == 0) {
+				roleName.append(role.getRoleName());
+			} else {
+				roleName.append("_").append(role.getRoleName());
+			}
+		}
+		return roleName.toString();
 	}
 	
 	//------------------------------------- 管理模块 end -----------------------------------------
