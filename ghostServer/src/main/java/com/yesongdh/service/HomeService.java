@@ -7,13 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.Admin;
+import com.yesongdh.bean.Permission;
 import com.yesongdh.bean.Role;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryContent;
@@ -21,12 +24,15 @@ import com.yesongdh.bean.StoryContentDot;
 import com.yesongdh.bean.StoryList;
 import com.yesongdh.bean.StoryReport;
 import com.yesongdh.bean.StoryStat;
+import com.yesongdh.common.CommonMapper;
 import com.yesongdh.common.CommonPage;
 import com.yesongdh.common.CommonPageInfo;
 import com.yesongdh.common.ScoreStrategy;
 import com.yesongdh.common.ScoreStrategyImp;
 import com.yesongdh.mapper.AdminMapper;
 import com.yesongdh.mapper.HomeMapper;
+import com.yesongdh.mapper.PermissionMapper;
+import com.yesongdh.mapper.RoleMapper;
 import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.mapper.StoryContentMapper;
 import com.yesongdh.mapper.StoryListMapper;
@@ -59,6 +65,12 @@ public class HomeService {
 	
 	@Autowired
 	AdminMapper adminMapper;
+	
+	@Autowired
+	PermissionMapper permissionMapper;
+	
+	@Autowired
+	RoleMapper roleMapper;
 
 	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
@@ -302,7 +314,7 @@ public class HomeService {
 		return true;
 	}
 
-	public boolean adminAdd(Admin admin) {
+	private boolean adminAdd(Admin admin) {
 		List<Role> roles = admin.getRoles();
 		if (roles == null || admin.getRoles().isEmpty()) {
 			return false;
@@ -325,7 +337,7 @@ public class HomeService {
 	private List<String> setPermList(List<Role> roles) {
 		Set<String> permsList = new HashSet<>();
 		for (Role role : roles) {
-			permsList.addAll(role.getPermissions());
+			permsList.addAll(role.getPerms());
 		}
 		return new ArrayList<String>(permsList);
 	}
@@ -342,6 +354,64 @@ public class HomeService {
 		}
 		return roleName.toString();
 	}
+
+	public List<Admin> adminList(Admin admin, int pageNo, int pageSize) {
+		RowBounds rowBounds = new RowBounds(pageNo, pageSize);
+		List<Admin> adminList = adminMapper.selectByRowBounds(admin, rowBounds);
+		return adminList;
+	}
+
+	public boolean adminOperate(Admin admin, String operate) {
+		operate = operate.toLowerCase();
+		if ("add".equals(operate)) {
+			return adminAdd(admin);
+		}
+		
+		if ("delete".equals(operate)) {
+			return adminMapper.deleteByPrimaryKey(admin.getId()) == 1;
+		}
+		
+		if ("mod".equals(operate)) {
+			return adminMapper.updateByPrimaryKeySelective(admin) == 1;
+		}
+		
+		return false;
+	}
+
+	public boolean permOperate(String operate, List<Permission> permissions) {
+		return operate(operate, permissions, permissionMapper);
+	}
+
+	public List<Permission> permList(String role) {
+		return permissionMapper.permList(role);
+	}
+
+	private <T> boolean operate(String operate, List<T> operateList, CommonMapper<T> commonMapper) {
+		operate = operate.toLowerCase();
+		if ("add".equals(operate)) {
+			return commonMapper.insertList(operateList) == operateList.size();
+		}
+		
+		if ("delete".equals(operate)) {
+			for (T operateItem : operateList) {
+				commonMapper.delete(operateItem);
+			}
+		}
+		
+		if ("mod".equals(operate)) {
+			for (T operateItem : operateList) {
+				commonMapper.updateByPrimaryKeySelective(operateItem);
+			}
+		}
+		return true;
+	}
+
+	public boolean roleOperate(String operate, List<Role> roles) {
+		return operate(operate, roles, roleMapper);
+	}
 	
+	public List<Permission> roleList(String admin) {
+		return roleMapper.roleList(admin);
+	}
 	//------------------------------------- 管理模块 end -----------------------------------------
 }

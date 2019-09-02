@@ -30,13 +30,18 @@ public class AuthPermissionFilter extends PermissionsAuthorizationFilter{
 		JSONObject errorJson = new JSONObject();
 		Session session = subject.getSession();
 		if (session == null) {
-			errorJson.put("100001", "会话超时失效");
+			errorJson.put("10001", "会话超时失效");
 			writeResponse(response, errorJson);
 			return false;
 		} 
 
+		//root用户拥有所有权限
+		if (subject.hasRole("root")) {
+			return true;
+		}
+		
 		if (!subject.isPermitted(uri)) {
-			errorJson.put("100001", "无权访问");
+			errorJson.put("10002", "无权访问");
 			writeResponse(response, errorJson);
 			return false;
 		}
