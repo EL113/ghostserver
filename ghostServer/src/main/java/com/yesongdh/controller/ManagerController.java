@@ -20,7 +20,8 @@ import com.yesongdh.bean.Role;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryReport;
 import com.yesongdh.common.BaseResponse;
-import com.yesongdh.service.HomeService;
+import com.yesongdh.service.WebManagerService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -30,14 +31,14 @@ import io.swagger.annotations.ApiOperation;
 public class ManagerController extends BaseResponse{
 	
 	@Resource
-	HomeService homeService;
+	WebManagerService webManagerService;
 	
 	@ApiOperation(value = "待审查列表")
 	@PostMapping("/audit/list")
 	@ResponseBody
 	public JSONObject auditList(@RequestBody StoryAudit storyAudit,
 			@RequestParam("page") int page, @RequestParam("pageSize") int pageSize) {
-		return success(homeService.auditList(storyAudit, page, pageSize));
+		return success(webManagerService.auditList(storyAudit, page, pageSize));
 	}
 	
 	@ApiOperation(value = "审查")
@@ -47,7 +48,7 @@ public class ManagerController extends BaseResponse{
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "op") int op,
 			@RequestParam(required = false, name = "reason") String reason) {
-		return homeService.audit(id, reason, op) ? success() : fail("操作失败");
+		return webManagerService.audit(id, reason, op) ? success() : fail("操作失败");
 	}
 	
 	@ApiOperation(value = "举报列表")
@@ -55,7 +56,7 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject reportList(@RequestBody StoryReport storyReport,
 			@RequestParam("page") int page, @RequestParam("pageSize") int pageSize) {
-		return success(homeService.reportList(storyReport, page, pageSize));
+		return success(webManagerService.reportList(storyReport, page, pageSize));
 	}
 	
 	@ApiOperation(value = "处理举报")
@@ -65,7 +66,7 @@ public class ManagerController extends BaseResponse{
 			@RequestParam(required = true, name = "id") String id,
 			@RequestParam(required = true, name = "handler") String handler,
 			@RequestParam(required = false, name = "reason") String reason) {
-		return homeService.handleReport(id, handler, reason) ? success() : fail("操作失败");
+		return webManagerService.handleReport(id, handler, reason) ? success() : fail("操作失败");
 	}
 	
 	@ApiOperation(value = "删除故事")
@@ -73,7 +74,7 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject deleteStory(
 			@RequestParam(required = true, name = "id") String id) {
-		return homeService.deleteStory(id) ? success() : fail("操作失败");
+		return webManagerService.deleteStory(id) ? success() : fail("操作失败");
 	}
 	
 	//---------------------------------------------------- 权限管理 ---------------------------------------
@@ -109,7 +110,7 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject adminList(@RequestBody Admin admin,
 			@RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize) {
-		List<Admin> admins = homeService.adminList(admin, pageNo, pageSize);
+		List<Admin> admins = webManagerService.adminList(admin, pageNo, pageSize);
 		return success(admins);
 	}
 	
@@ -119,7 +120,7 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject adminMod(@RequestBody Admin admin,
 			@RequestParam(value = "op", required = true) String operate) {
-		return homeService.adminOperate(admin, operate) ? success() : fail("操作失败");
+		return webManagerService.adminOperate(admin, operate) ? success() : fail("操作失败");
 	}
 	
 	@ApiOperation(value = "操作权限")
@@ -132,7 +133,7 @@ public class ManagerController extends BaseResponse{
 				permission.setId((int) (System.currentTimeMillis() % 1000000));
 			}
 		}
-		return homeService.permOperate(operate, permissions) ? success() : fail("操作失败");
+		return webManagerService.permOperate(operate, permissions) ? success() : fail("操作失败");
 	}
 	
 	//根据角色查询权限
@@ -140,7 +141,7 @@ public class ManagerController extends BaseResponse{
 	@PostMapping("/perm/list")
 	@ResponseBody
 	public JSONObject permList(@RequestParam("role") String role) {
-		return success(homeService.permList(role));
+		return success(webManagerService.permList(role));
 	}
 	
 	//修改角色包括 修改角色信息 角色的权限信息
@@ -155,6 +156,6 @@ public class ManagerController extends BaseResponse{
 				role.setId((int) (System.currentTimeMillis() % 1000000));
 			}
 		}
-		return homeService.roleOperate(operate, roles) ? success() : fail("操作失败");
+		return webManagerService.roleOperate(operate, roles) ? success() : fail("操作失败");
 	}
 }
