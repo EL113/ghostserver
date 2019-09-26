@@ -1,10 +1,9 @@
 package com.yesongdh.controller;
 
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.bean.StoryReport;
 import com.yesongdh.common.BaseResponse;
 import com.yesongdh.service.WebManagerService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -86,7 +84,12 @@ public class ManagerController extends BaseResponse{
 			@RequestParam(required = true, name = "passwd") String passwd) {
 		Subject subject = SecurityUtils.getSubject();
 		UsernamePasswordToken userToken = new UsernamePasswordToken(name, passwd);
-		subject.login(userToken);
+		try {
+			subject.login(userToken);
+		} catch (AuthenticationException e) {
+			return fail(e.getMessage());
+		}
+		
 		return success();
 	}
 	
@@ -114,13 +117,14 @@ public class ManagerController extends BaseResponse{
 		return success(admins);
 	}
 	
-	//修改包括 名称 密码 角色
+	//修改包括 名称 密码 角色 锁定状态
 	@ApiOperation(value = "操作用户")
 	@PostMapping("/admin/operate")
 	@ResponseBody
 	public JSONObject adminMod(@RequestBody Admin admin,
 			@RequestParam(value = "op", required = true) String operate) {
-		return webManagerService.adminOperate(admin, operate) ? success() : fail("操作失败");
+		String message = webManagerService.adminOperate(admin, operate);
+		return message == null ? success() : fail(message);
 	}
 	
 	@ApiOperation(value = "操作权限")

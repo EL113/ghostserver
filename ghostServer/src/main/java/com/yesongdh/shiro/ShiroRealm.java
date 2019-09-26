@@ -27,6 +27,7 @@ public class ShiroRealm extends AuthorizingRealm{
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		String userName = (String) principals.getPrimaryPrincipal();
 		List<String> roles = adminMapper.getAdminRoles(userName);
+		//权限就是uri
 		List<String> permissions = adminMapper.getRolePermissions(roles);
 		SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 		authorizationInfo.addRoles(roles);
@@ -50,6 +51,11 @@ public class ShiroRealm extends AuthorizingRealm{
 		//账户状态 0 启用 1 未启用
 		if ("1".equals(userAdmin.getStatus())) {
 			throw new AuthenticationException("账户已被禁用");
+		}
+		
+		//检查用户信息
+		if (!userAdmin.getPasswd().equals(new String(userToken.getPassword()))) {
+			
 		}
 		
 		return new SimpleAuthenticationInfo(userName, userAdmin.getPasswd(), getName());

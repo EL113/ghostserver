@@ -158,10 +158,21 @@ public class WebManagerService {
 		return true;
 	}
 
-	private boolean adminAdd(Admin admin) {
+	private String adminAdd(Admin admin) {
 		List<Role> roles = admin.getRoles();
 		if (roles == null || admin.getRoles().isEmpty()) {
-			return false;
+			return "用户角色不能为空";
+		}
+		
+		//用户名称不能重复
+		if (admin.getName() == null) {
+			return "用户名称不能为空";
+		}
+		
+		Admin record = new Admin();
+		record.setName(admin.getName());
+		if (adminMapper.select(record) != null) {
+			return "用户名称重复";
 		}
 		
 		//设置用户信息
@@ -175,7 +186,7 @@ public class WebManagerService {
 		adminMapper.insertRole(roleName);
 		List<String> permsList = setPermList(roles);
 		adminMapper.insertRolePerms(adminId, permsList);
-		return true;
+		return null;
 	}
 
 	private List<String> setPermList(List<Role> roles) {
@@ -205,21 +216,21 @@ public class WebManagerService {
 		return adminList;
 	}
 
-	public boolean adminOperate(Admin admin, String operate) {
+	public String adminOperate(Admin admin, String operate) {
 		operate = operate.toLowerCase();
 		if ("add".equals(operate)) {
 			return adminAdd(admin);
 		}
 		
 		if ("delete".equals(operate)) {
-			return adminMapper.deleteByPrimaryKey(admin.getId()) == 1;
+			adminMapper.deleteByPrimaryKey(admin.getId());
 		}
 		
 		if ("mod".equals(operate)) {
-			return adminMapper.updateByPrimaryKeySelective(admin) == 1;
+			adminMapper.updateByPrimaryKeySelective(admin);
 		}
 		
-		return false;
+		return null;
 	}
 
 	public boolean permOperate(String operate, List<Permission> permissions) {

@@ -9,6 +9,7 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="passwd" jdbcType="VARCHAR" property="passwd" />
     <result column="status" jdbcType="CHAR" property="status" />
+    <result column="lock" jdbcType="TINYINT" property="lock" />
     <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
     <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify" />
   </resultMap>

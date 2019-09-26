@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.shiro.mgt.SecurityManager;
 import com.yesongdh.shiro.AuthPermissionFilter;
+import com.yesongdh.shiro.CustomCredentialsMatcher;
 import com.yesongdh.shiro.KickoutSessionFilter;
 import com.yesongdh.shiro.ShiroRealm;
 
@@ -39,6 +40,9 @@ public class ShiroConfig {
     @Bean
     public ShiroRealm shiroRealm() {
     	ShiroRealm myShiroRealm = new ShiroRealm();
+    	myShiroRealm.setCredentialsMatcher(new CustomCredentialsMatcher());
+    	myShiroRealm.setCacheManager(cacheManager());
+    	myShiroRealm.setCachingEnabled(true);
         return myShiroRealm;
     }
 

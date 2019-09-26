@@ -22,7 +22,7 @@ public class Admin {
     private String passwd;
 
     /**
-     * 0 已启用 1 未启用
+     * 账户状态 0 已启用 1 未启用
      */
     private String status;
 
@@ -38,8 +38,9 @@ public class Admin {
     @Column(name = "gmt_modify")
     private Date gmtModify;
     
-    @Column(name = "role")
     private String role;
+    
+    private Integer lock;
     
     @Transient
     private List<Role> roles;
@@ -164,7 +165,15 @@ public class Admin {
 		this.role = role;
 	}
     
-    @Override
+    public Integer getLock() {
+		return lock;
+	}
+
+	public void setLock(Integer lock) {
+		this.lock = lock;
+	}
+
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
