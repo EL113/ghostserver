@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
@@ -31,6 +32,7 @@ import com.yesongdh.mapper.StoryStatMapper;
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
+@Service
 public class WebManagerService {
 
 	@Autowired

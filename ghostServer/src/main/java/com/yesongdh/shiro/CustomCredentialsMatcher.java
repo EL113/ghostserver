@@ -25,7 +25,7 @@ public class CustomCredentialsMatcher extends HashedCredentialsMatcher {
      * @param cacheManager
      */
     public void retryLimitHashedCredentialsMatcher(CacheManager cacheManager) {
-        passwordRetryCache = cacheManager.getCache("shiro-kickout-session");
+        passwordRetryCache = cacheManager.getCache("shiro-retry-count");
     }
 
     @Autowired
@@ -56,14 +56,14 @@ public class CustomCredentialsMatcher extends HashedCredentialsMatcher {
         //如果为null，则表示30分钟内未尝试过登录，自动解锁账号
         if (retryCount == null) {
             retryCount = new AtomicInteger(0);
-            if (user.getLock() == 1){
-                user.setLock(0);
+            if (user.getUserLock() == 1){
+                user.setUserLock(0);
                 adminMapper.updateByPrimaryKeySelective(user);
             }
             passwordRetryCache.put(userAccount, retryCount);    //将登录次数存入当前登录用户中
         }
         //锁定后重置错误计数为0
-        if (user.getLock() == 1){
+        if (user.getUserLock() == 1){
             retryCount = new AtomicInteger(0);
             passwordRetryCache.put(userAccount, retryCount);
             throw new ExcessiveAttemptsException();     //抛出超出登录次数异常
@@ -71,7 +71,7 @@ public class CustomCredentialsMatcher extends HashedCredentialsMatcher {
 
         //增加错误计数 锁定操作
         if (retryCount.incrementAndGet() > 2) {
-            user.setLock(1);
+            user.setUserLock(1);
             adminMapper.updateByPrimaryKeySelective(user);
         }
 

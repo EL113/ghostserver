@@ -76,6 +76,7 @@ public class KickoutSessionFilter extends AccessControlFilter {
 
 	private Deque<Serializable> cacheSession(Session session, String username, Serializable sessionId) {
 		Deque<Serializable> deque = cache.get(username);
+//		System.out.println("-------------------------------------------------getrediscache");
         if(deque==null){
             deque = new LinkedList<Serializable>();
         }

@@ -1,12 +1,8 @@
 package com.yesongdh.controller;
 
-import java.util.Calendar;
 import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,13 +15,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.yesongdh.annotation.IgnoreToken;
 import com.yesongdh.bean.StoryAudit;
 import com.yesongdh.common.BaseResponse;
-import com.yesongdh.mapper.StoryAuditMapper;
 import com.yesongdh.service.HomeService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import tk.mybatis.mapper.entity.Example;
-import tk.mybatis.mapper.entity.Example.Criteria;
 
 @Api
 @RestController
@@ -108,18 +100,4 @@ public class OpenApiController extends BaseResponse{
 		return homeService.report(id, reason) ? success(id) : fail("操作失败");
 	}
 	
-	//------------------------------------------- 定时器 -------------------------------------------------
-	
-	@Autowired
-	StoryAuditMapper storyAuditMapper;
-	
-	@Scheduled(cron = "* * * 1 * *")
-	public void deleteInvalidStory() {
-		Example example = new Example(StoryAudit.class);
-		Criteria criteria = example.createCriteria();
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, -30);
-		criteria.andLessThan("create_time", calendar.getTime());
-		storyAuditMapper.deleteByExample(example);
-	}
 }

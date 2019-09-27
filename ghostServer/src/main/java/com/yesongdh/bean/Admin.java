@@ -40,7 +40,8 @@ public class Admin {
     
     private String role;
     
-    private Integer lock;
+    @Column(name = "user_lock")
+    private Integer userLock;
     
     @Transient
     private List<Role> roles;
@@ -165,12 +166,12 @@ public class Admin {
 		this.role = role;
 	}
     
-    public Integer getLock() {
-		return lock;
+    public Integer getUserLock() {
+		return userLock;
 	}
-
-	public void setLock(Integer lock) {
-		this.lock = lock;
+    
+    public void setUserLock(Integer userLock) {
+		this.userLock = userLock;
 	}
 
 	@Override

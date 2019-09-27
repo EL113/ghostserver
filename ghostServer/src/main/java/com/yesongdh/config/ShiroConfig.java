@@ -15,6 +15,7 @@ import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import com.yesongdh.shiro.AuthPermissionFilter;
 import com.yesongdh.shiro.CustomCredentialsMatcher;
@@ -40,13 +41,20 @@ public class ShiroConfig {
     @Bean
     public ShiroRealm shiroRealm() {
     	ShiroRealm myShiroRealm = new ShiroRealm();
-    	myShiroRealm.setCredentialsMatcher(new CustomCredentialsMatcher());
+    	myShiroRealm.setCredentialsMatcher(CustomCredentialsMatcher());
     	myShiroRealm.setCacheManager(cacheManager());
     	myShiroRealm.setCachingEnabled(true);
         return myShiroRealm;
     }
 
-    //权限管理，配置主要是Realm的管理认证
+    private CredentialsMatcher CustomCredentialsMatcher() {
+    	CustomCredentialsMatcher credentialsMatcher = new CustomCredentialsMatcher();
+    	credentialsMatcher.setHashAlgorithmName("md5");
+    	credentialsMatcher.retryLimitHashedCredentialsMatcher(cacheManager());
+		return credentialsMatcher;
+	}
+
+	//权限管理，配置主要是Realm的管理认证
     @Bean
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
@@ -102,7 +110,7 @@ public class ShiroConfig {
     }
     
     //缓存管理
-    public RedisCacheManager cacheManager() {
+    private RedisCacheManager cacheManager() {
         RedisCacheManager redisCacheManager = new RedisCacheManager();
         redisCacheManager.setRedisManager(redisManager());
         return redisCacheManager;
@@ -128,7 +136,7 @@ public class ShiroConfig {
         return redisSessionDAO;
     }
     
-    public RedisManager redisManager() {
+    private RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
         redisManager.setHost(redisHost);
         redisManager.setPort(redisPort);
