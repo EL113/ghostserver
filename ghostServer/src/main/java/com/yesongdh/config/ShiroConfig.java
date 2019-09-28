@@ -75,21 +75,12 @@ public class ShiroConfig {
         return authorizationAttributeSourceAdvisor;
     }
     
-    //限制同一账号登录同时登录人数控制
-    @Bean
-    public KickoutSessionFilter kickoutSessionFilter() {
-        KickoutSessionFilter kickoutSessionControlFilter = new KickoutSessionFilter();
-        kickoutSessionControlFilter.setCacheManager(ehCacheManager());
-        kickoutSessionControlFilter.setSessionManager(sessionManager());
-        kickoutSessionControlFilter.setKickoutAfter(false);
-        kickoutSessionControlFilter.setMaxSession(1);
-        return kickoutSessionControlFilter;
-    }
-    
+    //限制同一账号登录同时登录人数控制和权限控制
     @Bean
     public AuthPermissionFilter authPermissionFilter() {
     	AuthPermissionFilter authPermissionFilter = new AuthPermissionFilter();
-//    	authPermissionFilter.setUnauthorizedUrl("/ghoststory/web/unauthorized");
+    	authPermissionFilter.setCacheManager(ehCacheManager());
+    	authPermissionFilter.setSessionManager(sessionManager());
         return authPermissionFilter;
     }
     

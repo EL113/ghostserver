@@ -25,20 +25,12 @@ public class KickoutSessionFilter extends AccessControlFilter {
     private SessionManager sessionManager;
     private Cache<String, Deque<Serializable>> cache;
 
-    public void setKickoutAfter(boolean kickoutAfter) {
-        this.kickoutAfter = kickoutAfter;
-    }
-
-    public void setMaxSession(int maxSession) {
-        this.maxSession = maxSession;
-    }
-
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
-    //设置Cache的key的前缀
+    
     public void setCacheManager(CacheManager cacheManager) {
-        this.cache = cacheManager.getCache("shiro_redis_cache");
+        this.cache = cacheManager.getCache("shiro-kickout-session");
     }
 
     //shiro拦截链到这里后调用该方法，返回true直接进入下一个拦截器，返回false则调用 onaccessdenied
