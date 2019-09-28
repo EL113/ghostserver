@@ -1,6 +1,5 @@
 package com.yesongdh.shiro;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -25,61 +24,53 @@ public class CustomCredentialsMatcher extends HashedCredentialsMatcher {
      * @param cacheManager
      */
     public void retryLimitHashedCredentialsMatcher(CacheManager cacheManager) {
-        passwordRetryCache = cacheManager.getCache("shiro-retry-count");
+        passwordRetryCache = cacheManager.getCache("passwd-retry-count");
     }
 
     @Autowired
     private AdminMapper adminMapper;
 
-    /**
-     *登录拦截，密码错误次数统计并于三次后更新用户锁为true
-     *
-     * @param token
-     * @param info
-     * @return
-     */
+    //密码验证，true表示验证成功，false将在login抛出验证异常，密码错误异常需要手动抛出
     @Override
     public boolean doCredentialsMatch(AuthenticationToken token,
                                       AuthenticationInfo info) {
         String userAccount = (String) token.getPrincipal();
-        // retry count + 1
         AtomicInteger retryCount = passwordRetryCache.get(userAccount);
 
-        Admin userAdmin = new Admin();
-        userAdmin.setName(userAccount);
-        List<Admin> users = adminMapper.select(userAdmin);
-        if (users == null || users.isEmpty()) {
-			return false;
-		}
+        Admin record = new Admin();
+        record.setName(userAccount);
+        Admin user = adminMapper.selectOne(record);
         
-        Admin user = users.get(0);
-        //如果为null，则表示30分钟内未尝试过登录，自动解锁账号
-        if (retryCount == null) {
-            retryCount = new AtomicInteger(0);
-            if (user.getUserLock() == 1){
-                user.setUserLock(0);
-                adminMapper.updateByPrimaryKeySelective(user);
-            }
-            passwordRetryCache.put(userAccount, retryCount);    //将登录次数存入当前登录用户中
-        }
-        //锁定后重置错误计数为0
-        if (user.getUserLock() == 1){
-            retryCount = new AtomicInteger(0);
-            passwordRetryCache.put(userAccount, retryCount);
-            throw new ExcessiveAttemptsException();     //抛出超出登录次数异常
-        }
-
-        //增加错误计数 锁定操作
-        if (retryCount.incrementAndGet() > 2) {
-            user.setUserLock(1);
+        //如果账户被锁定并缓存为空 则是缓存消失 已经自动解锁 手动解锁 新建缓存置0
+        if (user.getUserLock() == 1 && retryCount == null) {
+        	user.setUserLock(0);
             adminMapper.updateByPrimaryKeySelective(user);
-        }
+		} else if (user.getUserLock() == 1) {
+			//账号已被锁定 还没由被自动解锁
+			throw new ExcessiveAttemptsException("账号已被锁定");
+		}
 
-        //调用父类的密码验证
+        //账号未被锁定  调用父类的密码验证
         boolean matches = super.doCredentialsMatch(token, info);
+        //如果验证成功移除当前用户的登录值缓存
         if (matches) {
-            passwordRetryCache.remove(userAccount);     //移除当前用户的登录值缓存
+            passwordRetryCache.remove(userAccount);
+            return matches;
         }
+        
+        //首次密码错误
+        if (retryCount == null) {
+        	passwordRetryCache.put(userAccount, new AtomicInteger(1));
+        	return matches;
+		}
+        //增加错误计数 如果超过次数则执行锁定操作 缓存置0
+        if (retryCount.incrementAndGet() > 3) {
+            user.setUserLock(1);
+            passwordRetryCache.put(userAccount, new AtomicInteger(0));
+            adminMapper.updateByPrimaryKeySelective(user);
+            throw new ExcessiveAttemptsException("账号已被锁定");
+        }
+        
         return matches;
     }
 

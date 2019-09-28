@@ -11,11 +11,21 @@
             diskExpiryThreadIntervalSeconds="120"
     />
 
-    <!-- 登录记录缓存锁定10分钟 -->
+    <!-- 登录记录缓存锁定30分钟 -->
     <cache name="shiro-kickout-session"
            maxEntriesLocalHeap="2000"
            eternal="false"
            timeToIdleSeconds="1800"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+    
+    <!-- 登陆密码错误次数缓存1小时 -->
+    <cache name="passwd-retry-count"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
            timeToLiveSeconds="0"
            overflowToDisk="false"
            statistics="true">

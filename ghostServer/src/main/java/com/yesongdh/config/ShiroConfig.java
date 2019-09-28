@@ -9,14 +9,12 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.crazycake.shiro.RedisCacheManager;
-import org.crazycake.shiro.RedisManager;
-import org.crazycake.shiro.RedisSessionDAO;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import com.yesongdh.shiro.AuthPermissionFilter;
 import com.yesongdh.shiro.CustomCredentialsMatcher;
 import com.yesongdh.shiro.KickoutSessionFilter;
@@ -25,34 +23,15 @@ import com.yesongdh.shiro.ShiroRealm;
 @Configuration
 public class ShiroConfig {
 	
-	@Value("spring.redis.host")
-	String redisHost;
-	
-	@Value("spring.redis.port")
-	int redisPort;
-	
-	@Value("spring.redis.password")
-	String redisPasswd;
-	
-	@Value("spring.redis.timeout")
-	int redisTimeout;
-	
 	//将自己的验证方式加入容器
     @Bean
     public ShiroRealm shiroRealm() {
     	ShiroRealm myShiroRealm = new ShiroRealm();
     	myShiroRealm.setCredentialsMatcher(CustomCredentialsMatcher());
-    	myShiroRealm.setCacheManager(cacheManager());
+    	myShiroRealm.setCacheManager(ehCacheManager());
     	myShiroRealm.setCachingEnabled(true);
         return myShiroRealm;
     }
-
-    private CredentialsMatcher CustomCredentialsMatcher() {
-    	CustomCredentialsMatcher credentialsMatcher = new CustomCredentialsMatcher();
-    	credentialsMatcher.setHashAlgorithmName("md5");
-    	credentialsMatcher.retryLimitHashedCredentialsMatcher(cacheManager());
-		return credentialsMatcher;
-	}
 
 	//权限管理，配置主要是Realm的管理认证
     @Bean
@@ -67,20 +46,22 @@ public class ShiroConfig {
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
+        shiroFilterFactoryBean.setLoginUrl("/web/error");
+        shiroFilterFactoryBean.setUnauthorizedUrl("/web/unauthorized");
         
         //自定义shiro拦截器 同时在线人数控制拦截器 权限认证拦截器 
         Map<String, Filter> filtersMap = new LinkedHashMap<String, Filter>();
-        filtersMap.put("kickout", kickoutSessionFilter());
-        filtersMap.put("authc", new AuthPermissionFilter());
+//        filtersMap.put("kickout", kickoutSessionFilter());
+        filtersMap.put("auth", authPermissionFilter());
         shiroFilterFactoryBean.setFilters(filtersMap);
         
         Map<String,String> map = new HashMap<String, String>();
         //定义接口和拦截器之间的关系
-        map.put("/web/admin/logout","logout");
-        map.put("/web/**","authc");
-        map.put("/web/**", "kickout");
-        shiroFilterFactoryBean.setLoginUrl("/web/admin/login");
-        shiroFilterFactoryBean.setUnauthorizedUrl("/web/admin/error");
+        map.put("/web/logout","anon");
+        map.put("/web/login", "anon");
+        map.put("/web/**","auth");
+//        map.put("/web/**", "kickout");
+//        map.put(/**, value)
         shiroFilterFactoryBean.setFilterChainDefinitionMap(map);
         
         return shiroFilterFactoryBean;
@@ -94,33 +75,40 @@ public class ShiroConfig {
         return authorizationAttributeSourceAdvisor;
     }
     
-    /**
-     * 限制同一账号登录同时登录人数控制
-     *
-     * @return
-     */
+    //限制同一账号登录同时登录人数控制
     @Bean
     public KickoutSessionFilter kickoutSessionFilter() {
         KickoutSessionFilter kickoutSessionControlFilter = new KickoutSessionFilter();
-        kickoutSessionControlFilter.setCacheManager(cacheManager());
+        kickoutSessionControlFilter.setCacheManager(ehCacheManager());
         kickoutSessionControlFilter.setSessionManager(sessionManager());
         kickoutSessionControlFilter.setKickoutAfter(false);
         kickoutSessionControlFilter.setMaxSession(1);
         return kickoutSessionControlFilter;
     }
     
-    //缓存管理
-    private RedisCacheManager cacheManager() {
-        RedisCacheManager redisCacheManager = new RedisCacheManager();
-        redisCacheManager.setRedisManager(redisManager());
-        return redisCacheManager;
+    @Bean
+    public AuthPermissionFilter authPermissionFilter() {
+    	AuthPermissionFilter authPermissionFilter = new AuthPermissionFilter();
+//    	authPermissionFilter.setUnauthorizedUrl("/ghoststory/web/unauthorized");
+        return authPermissionFilter;
     }
+    
+    //采用自定义的密码校验器，密码错误重试次数
+    @Bean
+    public CredentialsMatcher CustomCredentialsMatcher() {
+    	CustomCredentialsMatcher credentialsMatcher = new CustomCredentialsMatcher();
+    	credentialsMatcher.setHashAlgorithmName("md5");
+    	credentialsMatcher.setHashIterations(1024);
+    	credentialsMatcher.setStoredCredentialsHexEncoded(true);
+    	credentialsMatcher.retryLimitHashedCredentialsMatcher(ehCacheManager());
+		return credentialsMatcher;
+	}
     
     //会话管理
     @Bean
     public DefaultWebSessionManager sessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-        sessionManager.setSessionDAO(redisSessionDAO());
+        sessionManager.setSessionDAO(new EnterpriseCacheSessionDAO());
         sessionManager.setGlobalSessionTimeout(1800000);
         //会话调度器 定期删除无效的会话缓存
         sessionManager.setDeleteInvalidSessions(true);
@@ -129,20 +117,12 @@ public class ShiroConfig {
         return sessionManager;
     }
     
+    //缓存管理器
     @Bean
-    public RedisSessionDAO redisSessionDAO() {
-        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-        redisSessionDAO.setRedisManager(redisManager());
-        return redisSessionDAO;
-    }
-    
-    private RedisManager redisManager() {
-        RedisManager redisManager = new RedisManager();
-        redisManager.setHost(redisHost);
-        redisManager.setPort(redisPort);
-        redisManager.setTimeout(redisTimeout);
-        redisManager.setPassword(redisPasswd);
-        return redisManager;
+    public EhCacheManager ehCacheManager() {
+    	EhCacheManager ehCacheManager = new EhCacheManager();
+    	ehCacheManager.setCacheManagerConfigFile("classpath:ehcache-shiro.xml");
+        return ehCacheManager;
     }
     
     @Bean

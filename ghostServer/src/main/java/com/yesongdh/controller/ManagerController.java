@@ -4,6 +4,9 @@ import java.util.List;
 import javax.annotation.Resource;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.ExcessiveAttemptsException;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -86,9 +89,15 @@ public class ManagerController extends BaseResponse{
 		UsernamePasswordToken userToken = new UsernamePasswordToken(name, passwd);
 		try {
 			subject.login(userToken);
-		} catch (AuthenticationException e) {
+		} catch (DisabledAccountException e) {
 			return fail(e.getMessage());
-		}
+		} catch (ExcessiveAttemptsException e) {
+			return fail(e.getMessage());
+		} catch (UnknownAccountException e) {
+			return fail(e.getMessage());
+		} catch (AuthenticationException e) {
+			return fail("密码错误");
+		} 
 		
 		return success();
 	}
@@ -97,15 +106,10 @@ public class ManagerController extends BaseResponse{
 	@PostMapping("/logout")
 	@ResponseBody
 	public JSONObject adminLogout() {
-		SecurityUtils.getSubject().logout();
+		Subject subject = SecurityUtils.getSubject();
+		System.out.println("-----------------------"+subject.getPrincipal()+" logout");
+		subject.logout();
 		return success("退出登录成功");
-	}
-	
-	@ApiOperation(value = "授权错误")
-	@PostMapping("/error")
-	@ResponseBody
-	public JSONObject adminError() {
-		return success("授权错误");
 	}
 	
 	@ApiOperation(value = "查询用户")
@@ -118,7 +122,7 @@ public class ManagerController extends BaseResponse{
 	}
 	
 	//修改包括 名称 密码 角色 锁定状态
-	@ApiOperation(value = "操作用户")
+	@ApiOperation(value = "操作管理用户 修改用户信息 锁定解锁 角色 权限")
 	@PostMapping("/admin/operate")
 	@ResponseBody
 	public JSONObject adminMod(@RequestBody Admin admin,
@@ -132,11 +136,6 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject permOperate(@RequestParam(required = true, name = "operate") String operate,
 			@RequestBody List<Permission> permissions) {
-		if ("add".equals(operate)) {
-			for (Permission permission: permissions) {
-				permission.setId((int) (System.currentTimeMillis() % 1000000));
-			}
-		}
 		return webManagerService.permOperate(operate, permissions) ? success() : fail("操作失败");
 	}
 	
@@ -155,11 +154,18 @@ public class ManagerController extends BaseResponse{
 	public JSONObject roleOperate(
 			@RequestParam(required = true, name = "operate") String operate,
 			@RequestBody List<Role> roles) {
-		if ("add".equals(operate)) {
-			for (Role role: roles) {
-				role.setId((int) (System.currentTimeMillis() % 1000000));
-			}
-		}
 		return webManagerService.roleOperate(operate, roles) ? success() : fail("操作失败");
+	}
+	
+	@RequestMapping("/unauthorized")
+	@ResponseBody
+	public JSONObject unauthorized() {
+		return fail("无权限");
+	}
+	
+	@RequestMapping("/error")
+	@ResponseBody
+	public JSONObject adminError() {
+		return fail("未登录");
 	}
 }

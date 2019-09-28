@@ -25,6 +25,9 @@ public class Admin {
      * 账户状态 0 已启用 1 未启用
      */
     private String status;
+    
+    //加密用的盐
+    private String salt;
 
     /**
      * 创建时间
@@ -189,4 +192,12 @@ public class Admin {
         sb.append("]");
         return sb.toString();
     }
+	
+	public String getSalt() {
+		return salt;
+	}
+	
+	public void setSalt(String salt) {
+		this.salt = salt;
+	}
 }

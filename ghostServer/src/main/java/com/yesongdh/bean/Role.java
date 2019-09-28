@@ -1,9 +1,7 @@
 package com.yesongdh.bean;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.*;
 
 @Table(name = "web_role")

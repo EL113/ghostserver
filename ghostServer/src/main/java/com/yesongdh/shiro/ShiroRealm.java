@@ -1,18 +1,19 @@
 package com.yesongdh.shiro;
 
 import java.util.List;
-
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.DisabledAccountException;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.yesongdh.bean.Admin;
 import com.yesongdh.mapper.AdminMapper;
 import tk.mybatis.mapper.entity.Example;
@@ -45,20 +46,27 @@ public class ShiroRealm extends AuthorizingRealm{
 		List<Admin> userAdmins = adminMapper.selectByExample(userExample);
 		
 		if (userAdmins.size() != 1) {
-			throw new AuthenticationException("无效用户");
+			throw new UnknownAccountException("无效用户");
 		}
 		Admin userAdmin = userAdmins.get(0);
 		//账户状态 0 启用 1 未启用
 		if ("1".equals(userAdmin.getStatus())) {
-			throw new AuthenticationException("账户已被禁用");
+			throw new DisabledAccountException("账户已被禁用");
 		}
 		
-		//检查用户信息
-		if (!userAdmin.getPasswd().equals(new String(userToken.getPassword()))) {
-			
-		}
-		
-		return new SimpleAuthenticationInfo(userName, userAdmin.getPasswd(), getName());
+		ByteSource credentialSalt = ByteSource.Util.bytes(userAdmin.getSalt());
+		return new SimpleAuthenticationInfo(userName, userAdmin.getPasswd(), credentialSalt, getName());
 	}
+	
+//	public static void main(String[] args) {
+//        String hashAlgorithName = "MD5";
+//        String password = "123456";
+//        int hashIterations = 1024;
+//        String credentialSalt = UUID.randomUUID().toString();
+//        System.out.println(credentialSalt);
+//        ByteSource credentialsSalt = ByteSource.Util.bytes(credentialSalt);
+//        Object obj = new SimpleHash(hashAlgorithName, password, credentialsSalt, hashIterations);
+//        System.out.println(obj);
+//    }
 	
 }

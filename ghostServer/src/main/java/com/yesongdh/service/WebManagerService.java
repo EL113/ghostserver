@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.ibatis.session.RowBounds;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +62,9 @@ public class WebManagerService {
 	
 	@Autowired
 	StoryReportMapper storyReportMapper;
+	
+	@Autowired
+	EhCacheManager ehCacheManager;
 
 	//----------------------------------------- 管理模块 -----------------------------------------
 	
@@ -173,21 +180,25 @@ public class WebManagerService {
 		
 		Admin record = new Admin();
 		record.setName(admin.getName());
-		if (adminMapper.select(record) != null) {
+		List<Admin> admins = adminMapper.select(record);
+		if (admins != null && !admins.isEmpty()) {
 			return "用户名称重复";
 		}
 		
 		//设置用户信息
-		int adminId = (int) (System.currentTimeMillis() % 1000000);
 		String roleName = roles.size() == 1 ? roles.get(0).getRoleName() : getRoleName(roles);
 		admin.setRole(roleName);
-		admin.setId(adminId);
+		String uuId = UUID.randomUUID().toString();
+		admin.setSalt(uuId);
 		adminMapper.insert(admin);
+		admin = adminMapper.selectOne(admin);
 		
 		//设置新角色信息和权限信息
-		adminMapper.insertRole(roleName);
+		Role role = new Role();
+		role.setRoleName(roleName);
+		roleMapper.insert(role);
 		List<String> permsList = setPermList(roles);
-		adminMapper.insertRolePerms(adminId, permsList);
+		adminMapper.insertRolePerms(admin.getId(), permsList);
 		return null;
 	}
 
@@ -264,10 +275,34 @@ public class WebManagerService {
 	}
 
 	public boolean roleOperate(String operate, List<Role> roles) {
+		if (!"add".equals(operate)) {
+			return operate(operate, roles, roleMapper);
+		}
+		
+		if (!checkDuplicateRole(roles)) {
+			return false;
+		}
+		
 		return operate(operate, roles, roleMapper);
 	}
 	
-	public List<Permission> roleList(String admin) {
-		return roleMapper.roleList(admin);
+	private boolean checkDuplicateRole(List<Role> roles) {
+		Set<String> roleNames = new HashSet<>();
+		for(Role role: roles)
+			roleNames.add(role.getRoleName());
+		
+		if (roleNames.size() != roles.size()) {
+			return false;
+		}
+		
+		Example example = new Example(Role.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andIn("role_name", roleNames);
+		List<Role> roles2 = roleMapper.selectByExample(example);
+		if (roles2 != null && !roles2.isEmpty()) {
+			return false;
+		}
+		
+		return true;
 	}
 }

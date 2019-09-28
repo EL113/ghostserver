@@ -1,6 +1,8 @@
 package com.yesongdh.shiro;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -13,45 +15,39 @@ import org.apache.shiro.web.filter.authz.PermissionsAuthorizationFilter;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 使用某人的authc拦截器有点麻烦，不能细粒度控制访问接口，不如自定义拦截器
- * 用户的权限就是用户可访问的uri，如果当前访问的uri在用户权限中，则放行
+ * 自定义权限验证，检查subject对象中的权限是否和当前请求符合
  * @author yesong
- *
  */
 public class AuthPermissionFilter extends PermissionsAuthorizationFilter{
 
+	List<String> systemUrl = new ArrayList<>();
+	
+	{
+		systemUrl.add("/ghoststory/web/login");
+		systemUrl.add("/ghoststory/web/logout");
+		systemUrl.add("/ghoststory/web/unauthorized");
+		systemUrl.add("/ghoststory/web/error");
+	}
+	
 	@Override
 	public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
 			throws IOException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest)request;
 		String uri = httpServletRequest.getRequestURI();
 		Subject subject = getSubject(request, response);
-		
-		JSONObject errorJson = new JSONObject();
-		Session session = subject.getSession();
-		if (session == null) {
-			errorJson.put("10001", "会话超时失效");
-			writeResponse(response, errorJson);
-			return false;
-		} 
-
+		System.out.println("-------------------------"+uri+","+subject.getPrincipal());
 		//root用户拥有所有权限
+		if (systemUrl.contains(uri)) {
+			return true;
+		}
+		
 		if (subject.hasRole("root")) {
 			return true;
 		}
 		
-		if (!subject.isPermitted(uri)) {
-			errorJson.put("10002", "无权访问");
-			writeResponse(response, errorJson);
-			return false;
-		}
-		
-		return true;
-	}
-	
-	private void writeResponse(ServletResponse servletResponse, JSONObject json) throws IOException {
-		servletResponse.setContentType("text/html;charset=UTF-8");
-		servletResponse.getWriter().write(json.toString());
+		boolean ispermitted = subject.isPermitted(uri);
+		System.out.println("-----------------------"+ ispermitted);
+		return ispermitted;
 	}
 	
 	@Override

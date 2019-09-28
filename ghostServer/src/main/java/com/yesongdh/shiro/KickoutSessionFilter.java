@@ -54,7 +54,7 @@ public class KickoutSessionFilter extends AccessControlFilter {
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         Subject subject = getSubject(request, response);
         if(!subject.isAuthenticated() && !subject.isRemembered()) {
-            return true;
+            return false;
         }
 
         Session session = subject.getSession();

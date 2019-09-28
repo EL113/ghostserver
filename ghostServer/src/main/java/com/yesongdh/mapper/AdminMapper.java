@@ -11,10 +11,10 @@ import com.yesongdh.common.CommonMapper;
 
 public interface AdminMapper extends CommonMapper<Admin> {
 	
-	@Select("select role from web_admin where name = #{userName}) and status = 0")
+	@Select("select role from web_admin where name = #{userName} and status = 0")
 	List<String> getAdminRoles(@Param("userName") String userName);
 	
-	List<String> getRolePermissions(@Param("roleName") List<String> roleName);
+	List<String> getRolePermissions(@Param("roles") List<String> roleName);
 
 	@Insert("insert into web_role (role_name, status)values(#{roleName}, '0')")
 	int insertRole(@Param("roleName") String roleName);

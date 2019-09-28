@@ -9,16 +9,18 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="passwd" jdbcType="VARCHAR" property="passwd" />
     <result column="status" jdbcType="CHAR" property="status" />
+    <result column="salt" jdbcType="VARCHAR" property="salt" />
     <result column="lock" jdbcType="TINYINT" property="lock" />
     <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate" />
     <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify" />
   </resultMap>
   
   <select id="getRolePermissions" resultType = "java.lang.String">
-  	select uri from web_role_permission where role_name in 
+  	select uri from web_permission where id in (select perm_id from web_role_permission 
+  	where role_id in (select id from web_role where role_name in 
   	<foreach collection="roles" index="index" item="role" open="(" separator="," close=")">
   		#{role}
-  	</foreach>
+  	</foreach>))
   </select>
   
   <select id="insertRolePerms" resultType = "java.lang.Integer">
