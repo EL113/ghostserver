@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.session.Session;
@@ -19,7 +21,6 @@ import com.alibaba.fastjson.JSONObject;
 
 public class KickoutSessionFilter extends AccessControlFilter {
 
-    private boolean kickoutAfter = false; //踢出之前登录的/之后登录的用户 默认踢出之前登录的用户
     private int maxSession = 1; //同一个帐号最大会话数 默认1
 
     private SessionManager sessionManager;
@@ -46,19 +47,19 @@ public class KickoutSessionFilter extends AccessControlFilter {
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         Subject subject = getSubject(request, response);
         if(!subject.isAuthenticated() && !subject.isRemembered()) {
-            return false;
+            return true;
         }
 
         Session session = subject.getSession();
-        String username = (String) subject.getPrincipal();
+        String username = (String) subject.getPrincipal()+":kickout";
         Serializable sessionId = session.getId();
 
         //存储session记录
         Deque<Serializable> deque = cacheSession(session, username, sessionId);
 
         markickoutSession(deque, username);
-
-        //检测session是否被踢出
+        
+        //检测session是否被踢出 踢出就是直接下线
         if (session.getAttribute("kickout") != null) {
             kickoutSession(subject, request, response);
             return false;
@@ -82,15 +83,10 @@ public class KickoutSessionFilter extends AccessControlFilter {
     
     //推出队列中的sessionId，标记被提出的session的kickout为true
     private void markickoutSession(Deque<Serializable> deque, String username) {
+    	System.out.println("-----------------------------:"+deque);
         while(deque.size() > maxSession) {
-            Serializable kickoutSessionId = null;
-            if(kickoutAfter) {
-                kickoutSessionId = deque.removeFirst();
-                cache.put(username, deque);
-            } else {
-                kickoutSessionId = deque.removeLast();
-                cache.put(username, deque);
-            }
+            Serializable kickoutSessionId = deque.removeLast();
+            cache.put(username, deque);
 
             Session kickoutSession = sessionManager.getSession(new DefaultSessionKey(kickoutSessionId));
             if(kickoutSession != null) {
@@ -107,13 +103,13 @@ public class KickoutSessionFilter extends AccessControlFilter {
         JSONObject resJson = new JSONObject();
         resJson.put("user_status", "300");
         resJson.put("message", "您已经在其他地方登录，请重新登录！");
-    	
+    	System.out.println("---------------------------logout");
     	PrintWriter out = response.getWriter();
         try {
+            response.setContentType("application/json;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
-            out.println(resJson.toJSONString());
+            out.write(resJson.toJSONString());
             out.flush();
-            out.close();
         } catch (Exception e) {
 //            System.err.println("KickoutSessionFilter.class 输出JSON异常，可以忽略。");
         } finally {

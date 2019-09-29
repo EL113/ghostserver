@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -27,135 +29,49 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class AuthPermissionFilter extends PermissionsAuthorizationFilter{
 
-	List<String> systemUrl = new ArrayList<>();
+	public static List<String> systemUrl = new ArrayList<>();
 	
-	{
-		systemUrl.add("/ghoststory/web/login");
-		systemUrl.add("/ghoststory/web/logout");
-		systemUrl.add("/ghoststory/web/unauthorized");
-		systemUrl.add("/ghoststory/web/error");
+	static {
+		systemUrl.add("/web/login");
+		systemUrl.add("/web/logout");
+		systemUrl.add("/web/unauthorized");
+		systemUrl.add("/web/error");
 	}
 	
-	private boolean kickoutAfter = false; //踢出之前登录的/之后登录的用户 默认踢出之前登录的用户
-    private int maxSession = 1; //同一个帐号最大会话数 默认1
-
-    private SessionManager sessionManager;
-    private Cache<String, Deque<Serializable>> cache;
-	
-	public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-    
-    public void setCacheManager(CacheManager cacheManager) {
-        this.cache = cacheManager.getCache("shiro-kickout-session");
-    }
-
 	@Override
 	public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue)
 			throws IOException {
 		HttpServletRequest httpServletRequest = (HttpServletRequest)request;
-		String uri = httpServletRequest.getRequestURI();
+		String uri = httpServletRequest.getServletPath();
+//		uri = uri.substring(0, uri.indexOf(";"));
 		Subject subject = getSubject(request, response);
-		System.out.println("-------------------------"+uri+","+subject.getPrincipal());
-		//root用户拥有所有权限
+		
+		//root用户拥有所有权限 系统url不被拦截
 		if (systemUrl.contains(uri)) {
 			return true;
 		}
 		
+		//会话超时
+		System.out.println("-----------------------auth block0:"+uri+","+subject.getPrincipal()+","+subject.getSession().getId());
+		if (!subject.isAuthenticated()) {
+//			try {
+//				cleanup(httpServletRequest, response, new Exception());
+//			} catch (ServletException e) {
+//				e.printStackTrace();
+//			}
+			return false;
+		}
+//		System.out.println("-----------------------auth block1");
 		if (subject.hasRole("root")) {
 			return true;
 		}
-		
 		boolean ispermitted = subject.isPermitted(uri);
-		System.out.println("-----------------------"+ ispermitted);
 		return ispermitted;
 	}
 	
 	@Override
 	protected boolean onAccessDenied(ServletRequest request, ServletResponse response, Object o) throws Exception {
-		boolean isDenied = super.onAccessDenied(request, response);
-		if (isDenied) {
-			return isDenied;
-		}
-		
-		return kickout(request, response);
+		//这里直接抛出异常 检查用户状态 未登录或已登录 已登录的情况下抛出无权限异常
+		return super.onAccessDenied(request, response);
 	}
-	
-	private boolean kickout(ServletRequest request, ServletResponse response) throws Exception {
-        Subject subject = getSubject(request, response);
-        if(!subject.isAuthenticated() && !subject.isRemembered()) {
-            return false;
-        }
-
-        Session session = subject.getSession();
-        String username = (String) subject.getPrincipal();
-        Serializable sessionId = session.getId();
-
-        //存储session记录
-        Deque<Serializable> deque = cacheSession(session, username, sessionId);
-
-        markickoutSession(deque, username);
-
-        //检测session是否被踢出
-        if (session.getAttribute("kickout") != null) {
-            kickoutSession(subject, request, response);
-            return false;
-        }
-        return true;
-    }
-	
-	private Deque<Serializable> cacheSession(Session session, String username, Serializable sessionId) {
-		Deque<Serializable> deque = cache.get(username);
-//		System.out.println("-------------------------------------------------getrediscache");
-        if(deque==null){
-            deque = new LinkedList<Serializable>();
-        }
-
-        if(!deque.contains(sessionId) && session.getAttribute("kickout") == null) {
-            deque.push(sessionId);
-            cache.put(username, deque);
-        }
-		return deque;
-	}
-	
-	//推出队列中的sessionId，标记被提出的session的kickout为true
-    private void markickoutSession(Deque<Serializable> deque, String username) {
-        while(deque.size() > maxSession) {
-            Serializable kickoutSessionId = null;
-            if(kickoutAfter) {
-                kickoutSessionId = deque.removeFirst();
-                cache.put(username, deque);
-            } else {
-                kickoutSessionId = deque.removeLast();
-                cache.put(username, deque);
-            }
-
-            Session kickoutSession = sessionManager.getSession(new DefaultSessionKey(kickoutSessionId));
-            if(kickoutSession != null) {
-                kickoutSession.setAttribute("kickout", true);
-            }
-        }
-	}
-	
-	private void kickoutSession(Subject subject, ServletRequest request, ServletResponse response)
-            throws IOException {
-    	subject.logout();
-        saveRequest(request);
-        
-        JSONObject resJson = new JSONObject();
-        resJson.put("user_status", "300");
-        resJson.put("message", "您已经在其他地方登录，请重新登录！");
-    	
-    	PrintWriter out = response.getWriter();
-        try {
-            response.setCharacterEncoding("UTF-8");
-            out.println(resJson.toJSONString());
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-//            System.err.println("KickoutSessionFilter.class 输出JSON异常，可以忽略。");
-        } finally {
-        	out.close();
-        }
-    }
 }
