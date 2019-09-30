@@ -1,27 +1,13 @@
 package com.yesongdh.shiro;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
-
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.shiro.cache.Cache;
-import org.apache.shiro.cache.CacheManager;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.DefaultSessionKey;
-import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.PermissionsAuthorizationFilter;
-
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * 自定义权限验证，检查subject对象中的权限是否和当前请求符合
@@ -51,22 +37,16 @@ public class AuthPermissionFilter extends PermissionsAuthorizationFilter{
 			return true;
 		}
 		
-		//会话超时
 		System.out.println("-----------------------auth block0:"+uri+","+subject.getPrincipal()+","+subject.getSession().getId());
+		//权限未认证的情况下提示未登录
 		if (!subject.isAuthenticated()) {
-//			try {
-//				cleanup(httpServletRequest, response, new Exception());
-//			} catch (ServletException e) {
-//				e.printStackTrace();
-//			}
 			return false;
 		}
-//		System.out.println("-----------------------auth block1");
+		
 		if (subject.hasRole("root")) {
 			return true;
 		}
-		boolean ispermitted = subject.isPermitted(uri);
-		return ispermitted;
+		return subject.isPermitted(uri);
 	}
 	
 	@Override

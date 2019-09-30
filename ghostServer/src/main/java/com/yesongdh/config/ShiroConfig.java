@@ -8,7 +8,6 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +17,6 @@ import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
 import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
-
 import com.yesongdh.shiro.AuthPermissionFilter;
 import com.yesongdh.shiro.CustomCredentialsMatcher;
 import com.yesongdh.shiro.KickoutSessionFilter;
@@ -27,27 +25,7 @@ import com.yesongdh.shiro.ShiroRealm;
 @Configuration
 public class ShiroConfig {
 	
-	//将自己的验证方式加入容器
-    @Bean
-    public ShiroRealm shiroRealm() {
-    	ShiroRealm myShiroRealm = new ShiroRealm();
-    	myShiroRealm.setCredentialsMatcher(CustomCredentialsMatcher());
-//    	myShiroRealm.setCacheManager(ehCacheManager());
-//    	myShiroRealm.setCachingEnabled(true);
-        return myShiroRealm;
-    }
-
-	//权限管理，配置主要是Realm的管理认证
-    @Bean
-    public SecurityManager securityManager() {
-        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(shiroRealm());
-        securityManager.setSessionManager(sessionManager());
-//        securityManager.setCacheManager(ehCacheManager());
-        return securityManager;
-    }
-
-    //Filter工厂，设置对应的过滤条件和跳转条件
+	//Filter工厂，设置对应的过滤条件和跳转条件
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
@@ -72,6 +50,27 @@ public class ShiroConfig {
         
         return shiroFilterFactoryBean;
     }
+	
+	//权限管理，配置主要是Realm的管理认证
+    @Bean
+    public SecurityManager securityManager() {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        securityManager.setRealm(shiroRealm());
+        securityManager.setSessionManager(sessionManager());
+        return securityManager;
+    }
+    
+    //将自己的验证方式加入容器
+    @Bean
+    public ShiroRealm shiroRealm() {
+    	ShiroRealm myShiroRealm = new ShiroRealm();
+    	myShiroRealm.setCredentialsMatcher(CustomCredentialsMatcher());
+    	myShiroRealm.setCacheManager(ehCacheManager());
+    	myShiroRealm.setAuthenticationCacheName("authc-cache");
+    	myShiroRealm.setAuthorizationCacheName("authz-cache");
+    	myShiroRealm.setCachingEnabled(true);
+        return myShiroRealm;
+    }
 
     //加入注解的使用，不加入这个注解不生效
     @Bean
@@ -81,13 +80,14 @@ public class ShiroConfig {
         return authorizationAttributeSourceAdvisor;
     }
     
-    //限制同一账号登录同时登录人数控制和权限控制
+    //权限控制
     @Bean
     public AuthPermissionFilter authPermissionFilter() {
     	AuthPermissionFilter authPermissionFilter = new AuthPermissionFilter();
         return authPermissionFilter;
     }
     
+    //限制同一账号登录同时登录人数控制
     @Bean
     public KickoutSessionFilter kickoutSessionFilter() {
     	KickoutSessionFilter kickoutSessionFilter = new KickoutSessionFilter();
@@ -113,16 +113,6 @@ public class ShiroConfig {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionDAO(sessionDAO());
         sessionManager.setGlobalSessionTimeout(1800000);
-//        sessionManager.setCacheManager(ehCacheManager());
-        //会话调度器 定期删除无效的会话缓存
-//        sessionManager.setDeleteInvalidSessions(true);
-//        sessionManager.setSessionValidationScheduler(configSessionValidationScheduler());
-//        sessionManager.setSessionValidationSchedulerEnabled(true);
-//        sessionManager.setSessionIdCookieEnabled(false);
-//        sessionManager.setSessionIdUrlRewritingEnabled(true);
-//        sessionManager.setSessionValidationInterval(3600000);
-//        SimpleCookie simpleCookie = new SimpleCookie("shiro.session");
-//        sessionManager.setSessionIdCookie(simpleCookie);
         return sessionManager;
     }
     
@@ -150,8 +140,8 @@ public class ShiroConfig {
     public EnterpriseCacheSessionDAO sessionDAO() {
         EnterpriseCacheSessionDAO sessionDAO = new EnterpriseCacheSessionDAO();
         sessionDAO.setSessionIdGenerator(new JavaUuidSessionIdGenerator());
-        sessionDAO.setActiveSessionsCacheName("shiro-kickout-session");
-//        sessionDAO.setCacheManager(ehCacheManager());
+        sessionDAO.setCacheManager(ehCacheManager());
+        sessionDAO.setActiveSessionsCacheName("session-cache");
         return sessionDAO;
     }
 }
