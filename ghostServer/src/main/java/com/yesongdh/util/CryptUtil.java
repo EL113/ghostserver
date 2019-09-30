@@ -2,6 +2,12 @@ package com.yesongdh.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
+
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
+
+import com.yesongdh.bean.Admin;
 
 public class CryptUtil {
 	 
@@ -42,4 +48,19 @@ public class CryptUtil {
         }
         return hs.toUpperCase();
     }
+    
+    public static void encrptPasswd(Admin admin) {
+    	if (admin == null || admin.getPasswd() == null) {
+			return;
+		}
+    	
+    	String hashAlgorithName = "MD5";
+        String password = admin.getPasswd();
+        int hashIterations = 1024;
+        String credentialSalt = UUID.randomUUID().toString();
+        admin.setSalt(credentialSalt);
+        ByteSource credentialsSalt = ByteSource.Util.bytes(credentialSalt);
+        Object obj = new SimpleHash(hashAlgorithName, password, credentialsSalt, hashIterations);
+        admin.setPasswd(obj.toString());
+	}
 }

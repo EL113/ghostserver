@@ -22,6 +22,9 @@ public class Permission {
      * 权限对应的uri
      */
     private String uri;
+    
+    @Transient
+    private String roleId;
 
     /**
      * @return id
@@ -87,17 +90,11 @@ public class Permission {
         this.uri = uri;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", permissionName=").append(permissionName);
-        sb.append(", gmtCreate=").append(gmtCreate);
-        sb.append(", uri=").append(uri);
-        sb.append("]");
-        return sb.toString();
-    }
+    public String getRoleId() {
+		return roleId;
+	}
+    
+    public void setRoleId(String roleId) {
+		this.roleId = roleId;
+	}
 }

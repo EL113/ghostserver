@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.Admin;
 import com.yesongdh.bean.Permission;
 import com.yesongdh.bean.Role;
@@ -118,7 +119,7 @@ public class ManagerController extends BaseResponse{
 	public JSONObject adminList(@RequestBody Admin admin,
 			@RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize) {
 		List<Admin> admins = webManagerService.adminList(admin, pageNo, pageSize);
-		return success(admins);
+		return success(new PageInfo<Admin>(admins));
 	}
 	
 	//修改包括 名称 密码 角色 锁定状态
@@ -136,15 +137,27 @@ public class ManagerController extends BaseResponse{
 	@ResponseBody
 	public JSONObject permOperate(@RequestParam(required = true, name = "operate") String operate,
 			@RequestBody List<Permission> permissions) {
-		return webManagerService.permOperate(operate, permissions) ? success() : fail("操作失败");
+		String msg = webManagerService.permOperate(operate, permissions);
+		return msg == null ? success() : fail(msg);
 	}
 	
 	//根据角色查询权限
 	@ApiOperation(value = "查询权限")
 	@PostMapping("/perm/list")
 	@ResponseBody
-	public JSONObject permList(@RequestParam("role") String role) {
-		return success(webManagerService.permList(role));
+	public JSONObject permList(@RequestBody Permission permission, 
+			@RequestParam(required = true, name = "pageNo") int pageNo, 
+			@RequestParam(required = true, name = "pageSize") int pageSize) {
+		return success(webManagerService.permList(permission, pageNo, pageSize));
+	}
+	
+	@ApiOperation(value = "查询角色")
+	@PostMapping("/role/list")
+	@ResponseBody
+	public JSONObject roleList(@RequestBody Role role, 
+			@RequestParam(required = true, name = "pageNo") int pageNo, 
+			@RequestParam(required = true, name = "pageSize") int pageSize) {
+		return success(webManagerService.roleList(role, pageNo, pageSize));
 	}
 	
 	//修改角色包括 修改角色信息 角色的权限信息

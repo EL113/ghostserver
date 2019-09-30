@@ -13,6 +13,7 @@ import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.yesongdh.bean.Admin;
@@ -32,13 +33,16 @@ import com.yesongdh.mapper.StoryContentMapper;
 import com.yesongdh.mapper.StoryListMapper;
 import com.yesongdh.mapper.StoryReportMapper;
 import com.yesongdh.mapper.StoryStatMapper;
+import com.yesongdh.util.CryptUtil;
 
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
+@Transactional
 @Service
 public class WebManagerService {
 
+	
 	@Autowired
 	AdminMapper adminMapper;
 	
@@ -63,9 +67,6 @@ public class WebManagerService {
 	@Autowired
 	StoryReportMapper storyReportMapper;
 	
-	@Autowired
-	EhCacheManager ehCacheManager;
-
 	//----------------------------------------- 管理模块 -----------------------------------------
 	
 	public List<StoryAudit> auditList(StoryAudit storyAudit, int page, int pageSize) {
@@ -173,8 +174,7 @@ public class WebManagerService {
 			return "用户角色不能为空";
 		}
 		
-		//用户名称不能重复
-		if (admin.getName() == null) {
+		if (StringUtils.isEmpty(admin.getName())) {
 			return "用户名称不能为空";
 		}
 		
@@ -224,8 +224,8 @@ public class WebManagerService {
 	}
 
 	public List<Admin> adminList(Admin admin, int pageNo, int pageSize) {
-		RowBounds rowBounds = new RowBounds(pageNo, pageSize);
-		List<Admin> adminList = adminMapper.selectByRowBounds(admin, rowBounds);
+		PageHelper.startPage(pageNo, pageSize);
+		List<Admin> adminList = adminMapper.select(admin);
 		return adminList;
 	}
 
@@ -235,25 +235,93 @@ public class WebManagerService {
 			return adminAdd(admin);
 		}
 		
-		if ("delete".equals(operate)) {
+		if ("delete".equals(operate)) {		//TODO 可能需要批量删除接口
 			adminMapper.deleteByPrimaryKey(admin.getId());
 		}
 		
 		if ("mod".equals(operate)) {
+			admin.clearField();		//清除掉部分不能修改的数据
+			CryptUtil.encrptPasswd(admin);
 			adminMapper.updateByPrimaryKeySelective(admin);
 		}
 		
 		return null;
 	}
 
-	public boolean permOperate(String operate, List<Permission> permissions) {
-		return operate(operate, permissions, permissionMapper);
+	public String permOperate(String operate, List<Permission> permissions) {
+		String checkName = null;
+		if ("add".equals(operate) || "mod".equals(operate)) {
+			checkName = checkPermName(permissions);
+		}
+		
+		if (checkName != null) {
+			return checkName;
+		}
+		
+		return operate(operate, permissions, permissionMapper) ? null : "操作失败";
+	}
+	
+	private String checkPermName(List<Permission> permissions) {
+		Set<String> permNames = new HashSet<>();
+		for (Permission perm : permissions) {
+			permNames.add(perm.getPermissionName());
+		}
+		
+		if (permNames.size() != permissions.size()) {
+			return "存在同名权限";
+		}
+		
+		Example example = new Example(Permission.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andIn("permissionName", permNames);
+		List<Permission> permRecords = permissionMapper.selectByExample(example);
+		return permRecords.isEmpty() ? null : "存在同名权限";
 	}
 
-	public List<Permission> permList(String role) {
-		return permissionMapper.permList(role);
+	public List<Permission> permList(Permission permission, int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		
+		if (permission.getRoleId() != null) {
+			return permissionMapper.permList(permission.getRoleId());
+		}
+		
+		return permissionMapper.select(permission);
 	}
 
+	
+	public boolean roleOperate(String operate, List<Role> roles) {
+		if ("add".equals(operate) && !checkRoleNames(roles)) {
+			return false;
+		}
+		
+		return operate(operate, roles, roleMapper);
+	}
+	
+	private boolean checkRoleNames(List<Role> roles) {
+		Set<String> roleNames = new HashSet<>();
+		for(Role role: roles)
+			roleNames.add(role.getRoleName());
+		
+		if (roleNames.size() != roles.size()) {
+			return false;
+		}
+		
+		Example example = new Example(Role.class);
+		Criteria criteria = example.createCriteria();
+		criteria.andIn("role_name", roleNames);
+		List<Role> roles2 = roleMapper.selectByExample(example);
+		if (roles2 != null && !roles2.isEmpty()) {
+			return false;
+		}
+		
+		return true;
+	}
+
+	public List<Role> roleList(Role role, int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		return roleMapper.select(role);
+	}
+	
 	private <T> boolean operate(String operate, List<T> operateList, CommonMapper<T> commonMapper) {
 		operate = operate.toLowerCase();
 		if ("add".equals(operate)) {
@@ -271,38 +339,6 @@ public class WebManagerService {
 				commonMapper.updateByPrimaryKeySelective(operateItem);
 			}
 		}
-		return true;
-	}
-
-	public boolean roleOperate(String operate, List<Role> roles) {
-		if (!"add".equals(operate)) {
-			return operate(operate, roles, roleMapper);
-		}
-		
-		if (!checkDuplicateRole(roles)) {
-			return false;
-		}
-		
-		return operate(operate, roles, roleMapper);
-	}
-	
-	private boolean checkDuplicateRole(List<Role> roles) {
-		Set<String> roleNames = new HashSet<>();
-		for(Role role: roles)
-			roleNames.add(role.getRoleName());
-		
-		if (roleNames.size() != roles.size()) {
-			return false;
-		}
-		
-		Example example = new Example(Role.class);
-		Criteria criteria = example.createCriteria();
-		criteria.andIn("role_name", roleNames);
-		List<Role> roles2 = roleMapper.selectByExample(example);
-		if (roles2 != null && !roles2.isEmpty()) {
-			return false;
-		}
-		
 		return true;
 	}
 }

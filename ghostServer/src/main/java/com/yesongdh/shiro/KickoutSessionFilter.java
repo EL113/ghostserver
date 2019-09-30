@@ -87,8 +87,15 @@ public class KickoutSessionFilter extends AccessControlFilter {
         while(deque.size() > maxSession) {
             Serializable kickoutSessionId = deque.removeLast();
             cache.put(username, deque);
-
-            Session kickoutSession = sessionManager.getSession(new DefaultSessionKey(kickoutSessionId));
+            
+            Session kickoutSession = null;
+            try {
+            	kickoutSession = sessionManager.getSession(new DefaultSessionKey(kickoutSessionId));
+			} catch (Exception e) {
+				//退出登录并不会处理kickout-session里面的sessionid，如果没有找到sessionid，则什么都不做
+				//或者在退出接口注入sessionmanager，手动删除sessionid
+			}
+            
             if(kickoutSession != null) {
                 kickoutSession.setAttribute("kickout", true);
             }

@@ -177,27 +177,17 @@ public class Admin {
 		this.userLock = userLock;
 	}
 
-	@Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", name=").append(name);
-        sb.append(", passwd=").append(passwd);
-        sb.append(", status=").append(status);
-        sb.append(", gmtCreate=").append(gmtCreate);
-        sb.append(", gmtModify=").append(gmtModify);
-        sb.append("]");
-        return sb.toString();
-    }
-	
 	public String getSalt() {
 		return salt;
 	}
 	
 	public void setSalt(String salt) {
 		this.salt = salt;
+	}
+	
+	public void clearField() {
+		this.gmtCreate = null;
+		this.gmtModify = null;
+		this.salt = null;
 	}
 }
