@@ -196,9 +196,11 @@ public class WebManagerService {
 		//设置新角色信息和权限信息
 		Role role = new Role();
 		role.setRoleName(roleName);
-		roleMapper.insert(role);
+		roleMapper.insertSelective(role);
+		Role roleRecord = roleMapper.selectOne(role);
+		
 		List<String> permsList = setPermList(roles);
-		adminMapper.insertRolePerms(admin.getId(), permsList);
+		roleMapper.insertRolePerms(roleRecord.getId(), permsList);
 		return null;
 	}
 
@@ -294,7 +296,31 @@ public class WebManagerService {
 			return false;
 		}
 		
-		return operate(operate, roles, roleMapper);
+		operate(operate, roles, roleMapper);
+		
+		if ("add".equals(operate) || "mod".equals(operate)) {
+			insertRolePerms(roles);
+		}
+		
+		if ("del".equals(operate)) {
+			deleteRolePerms(roles);
+		}
+		return true;
+	}
+	
+	private void insertRolePerms(List<Role> roles) {
+		for(Role role: roles) {
+			Role role2 = roleMapper.selectOne(role);
+			roleMapper.deleteRolePerms(role2.getId());
+			roleMapper.insertRolePerms(role2.getId(), role.getPerms());
+		}
+	}
+	
+	private void deleteRolePerms(List<Role> roles) {
+		for(Role role: roles) {
+			Role role2 = roleMapper.selectOne(role);
+			roleMapper.deleteRolePerms(role2.getId());
+		}
 	}
 	
 	private boolean checkRoleNames(List<Role> roles) {
@@ -308,7 +334,7 @@ public class WebManagerService {
 		
 		Example example = new Example(Role.class);
 		Criteria criteria = example.createCriteria();
-		criteria.andIn("role_name", roleNames);
+		criteria.andIn("roleName", roleNames);
 		List<Role> roles2 = roleMapper.selectByExample(example);
 		if (roles2 != null && !roles2.isEmpty()) {
 			return false;

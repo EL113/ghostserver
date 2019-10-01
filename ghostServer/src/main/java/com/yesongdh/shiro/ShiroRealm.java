@@ -1,5 +1,6 @@
 package com.yesongdh.shiro;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +19,10 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.yesongdh.bean.Admin;
+import com.yesongdh.bean.Role;
 import com.yesongdh.mapper.AdminMapper;
+import com.yesongdh.mapper.RoleMapper;
+
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
@@ -27,12 +31,21 @@ public class ShiroRealm extends AuthorizingRealm{
 	@Autowired
 	AdminMapper adminMapper;
 	
+	@Autowired
+	RoleMapper roleMapper;
+	
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		String userName = (String) principals.getPrimaryPrincipal();
-		List<String> roles = adminMapper.getAdminRoles(userName);
+		Admin record = new Admin();
+		record.setName(userName);
+		record.setStatus("0");
+		List<Admin> admins = adminMapper.select(record);
+		List<String> roles = new ArrayList<String>();
+		roles.add(admins.get(0).getName());
+		
 		//权限就是uri
-		List<String> permissions = adminMapper.getRolePermissions(roles);
+		List<String> permissions = roleMapper.getRolePermissions(roles);
 		SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
 		authorizationInfo.addRoles(roles);
 		authorizationInfo.addStringPermissions(permissions);

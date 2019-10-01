@@ -123,7 +123,7 @@ public class ManagerController extends BaseResponse{
 	}
 	
 	//修改包括 名称 密码 角色 锁定状态
-	@ApiOperation(value = "操作管理用户 修改用户信息 锁定解锁 角色 权限")
+	@ApiOperation(value = "操作管理用户 修改用户信息 锁定解锁 角色")
 	@PostMapping("/admin/operate")
 	@ResponseBody
 	public JSONObject adminMod(@RequestBody Admin admin,

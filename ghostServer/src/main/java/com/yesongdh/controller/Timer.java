@@ -18,13 +18,13 @@ public class Timer {
 	@Autowired
 	StoryAuditMapper storyAuditMapper;
 	
-	@Scheduled(cron = "* * * 1 * *")
-	public void deleteInvalidStory() {
-		Example example = new Example(StoryAudit.class);
-		Criteria criteria = example.createCriteria();
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DAY_OF_MONTH, -30);
-		criteria.andLessThan("create_time", calendar.getTime());
-		storyAuditMapper.deleteByExample(example);
-	}
+//	@Scheduled(cron = "0 0 0 1 * *")
+//	public void deleteInvalidStory() {
+//		Example example = new Example(StoryAudit.class);
+//		Criteria criteria = example.createCriteria();
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.add(Calendar.DAY_OF_MONTH, -30);
+//		criteria.andLessThan("create_time", calendar.getTime());
+//		storyAuditMapper.deleteByExample(example);
+//	}
 }

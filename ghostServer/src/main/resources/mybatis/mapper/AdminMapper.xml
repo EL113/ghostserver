@@ -15,18 +15,4 @@
     <result column="gmt_modify" jdbcType="TIMESTAMP" property="gmtModify" />
   </resultMap>
   
-  <select id="getRolePermissions" resultType = "java.lang.String">
-  	select uri from web_permission where id in (select perm_id from web_role_permission 
-  	where role_id in (select id from web_role where role_name in 
-  	<foreach collection="roles" index="index" item="role" open="(" separator="," close=")">
-  		#{role}
-  	</foreach>))
-  </select>
-  
-  <select id="insertRolePerms" resultType = "java.lang.Integer">
-  	insert into web_role_permission (role_id, perm_id) values 
-  	<foreach collection="permsList" index="index" item="perm" open="(" separator="," close=")">
-  		#{roleId}, #{perm}
-  	</foreach>
-  </select>
 </mapper>
