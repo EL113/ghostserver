@@ -1,6 +1,8 @@
 package com.yesongdh.bean;
 
 import java.util.Date;
+import java.util.List;
+
 import javax.persistence.*;
 
 @Table(name = "story_audit")
@@ -10,12 +12,13 @@ public class StoryAudit {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer rid;
 
+    private Integer id;
+    
     /**
      * 故事子id
      */
-    @Id
     @Column(name = "sub_id")
     private Integer subId;
 
@@ -42,12 +45,12 @@ public class StoryAudit {
      * 审核状态 0 审核中 1 通过 2 未通过
      */
     private String status;
-
+    
     /**
      * 用户id号
      */
-    @Column(name = "authorId")
-    private String authorid;
+    @Column(name = "author_id")
+    private String authorId;
 
     /**
      * 原因
@@ -65,6 +68,25 @@ public class StoryAudit {
     
     @Transient
     private Date createDate1;
+    
+    @Transient
+    private List<String> ids;
+    
+    public List<String> getIds() {
+		return ids;
+	}
+    
+    public void setIds(List<String> ids) {
+		this.ids = ids;
+	}
+    
+    public Integer getRid() {
+		return rid;
+	}
+    
+    public void setRid(Integer rid) {
+		this.rid = rid;
+	}
     
     /**
      * 获取故事id号
@@ -202,23 +224,13 @@ public class StoryAudit {
         this.status = status;
     }
 
-    /**
-     * 获取用户id号
-     *
-     * @return authorId - 用户id号
-     */
-    public String getAuthorid() {
-        return authorid;
-    }
-
-    /**
-     * 设置用户id号
-     *
-     * @param authorid 用户id号
-     */
-    public void setAuthorid(String authorid) {
-        this.authorid = authorid;
-    }
+    public String getAuthorId() {
+		return authorId;
+	}
+    
+    public void setAuthorId(String authorId) {
+		this.authorId = authorId;
+	}
 
     /**
      * 获取原因
@@ -272,24 +284,4 @@ public class StoryAudit {
 		this.createDate1 = createDate1;
 	}
 
-	@Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", subId=").append(subId);
-        sb.append(", title=").append(title);
-        sb.append(", author=").append(author);
-        sb.append(", type=").append(type);
-        sb.append(", content=").append(content);
-        sb.append(", brief=").append(brief);
-        sb.append(", status=").append(status);
-        sb.append(", authorid=").append(authorid);
-        sb.append(", reason=").append(reason);
-        sb.append(", createTime=").append(createTime);
-        sb.append("]");
-        return sb.toString();
-    }
 }

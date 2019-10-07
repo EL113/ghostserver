@@ -1,5 +1,6 @@
 package com.yesongdh.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,11 +47,11 @@ public class HomeService {
 	@Autowired
 	StoryReportMapper storyReportMapper;
 
-	public PageInfo<StoryList> getRecommend(int pageNo, int pageSize) {
+	public List<StoryList> getRecommend(int pageNo, int pageSize) {
 		PageHelper.startPage(pageNo, pageSize);
 		List<StoryList> stats = homeMapper.getStoryListByStatOrder();
 		
-		return new PageInfo<>(stats);
+		return stats;
 	}
 
 	public StoryContentDot getContent(String id,String type, int pageNo, int pageSize) {
@@ -60,21 +61,31 @@ public class HomeService {
 		Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("id", id);
 		List<StoryContent> contentList = storyContentMapper.selectByExample(example);
+		StoryContent record = new StoryContent();
+		record.setId(Integer.valueOf(id));
+		int count = storyContentMapper.selectCount(record);
 		
 		Example statExample = getStatExampleByIdAndType(id, type);
-		StoryStat storyStat = storyStatMapper.selectByExample(statExample).get(0);
-		CommonPageInfo<StoryContent> contentInfo = new CommonPageInfo<StoryContent>(contentList);
-		CommonPage page = contentInfo.getPage();
+		StoryStat storyStat = storyStatMapper.selectOneByExample(statExample);
+		//统计表没有记录则新建一条记录
+		if (storyStat == null && !contentList.isEmpty()) {
+			storyStat = new StoryStat();
+			storyStat.setId(Integer.valueOf(id));
+			storyStat.setType(type);
+			storyStat.setDefault();
+			storyStatMapper.insert(storyStat);
+		}
 		
-		StringBuffer contentBuffer = new StringBuffer();
+		List<String> contents = new ArrayList<String>();
 		for(StoryContent content: contentList) {
-			contentBuffer.append(content.getContent());
+			contents.add(content.getContent());
 		}
 		
 		StoryContentDot storyContentDot = new StoryContentDot();
-		storyContentDot.setStoryContent(contentBuffer.toString());
+		storyContentDot.setContent(contents);
 		storyContentDot.setStoryStat(storyStat);
-		storyContentDot.setPage(page);
+		storyContentDot.setCurrentPage(pageNo);
+		storyContentDot.setMaxPage(count % pageSize == 0 ? count / pageSize : count/pageSize + 1);
 		return storyContentDot;
 	}
 	
@@ -140,7 +151,7 @@ public class HomeService {
 	//审查表中插入数据
 	@Transactional
 	public String publish(StoryAudit story) {
-		String brief = story.getContent().substring(0,50);
+		String brief = story.getContent().length() < 50 ? story.getContent() : story.getContent().substring(0,50);
 		story.setBrief(brief);
 		String id = story.getId() == null ? String.valueOf(System.currentTimeMillis() % 100000000) 
 				: String.valueOf(story.getId());
@@ -186,5 +197,14 @@ public class HomeService {
 		int row = storyReportMapper.insertSelective(storyReport);
 		return row == 1;
 	}
+
+	public List<StoryAudit> auditList(List<String> ids) {
+		if (ids.isEmpty()) {
+			return new ArrayList<>();
+		}
+		
+		return storyAuditMapper.getStoryAudits(ids);
+	}
+
 	//------------------------------------- 管理模块 end -----------------------------------------
 }

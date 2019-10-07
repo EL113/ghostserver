@@ -69,12 +69,6 @@ public class WebManagerService {
 	
 	//----------------------------------------- 管理模块 -----------------------------------------
 	
-	public List<StoryAudit> auditList(StoryAudit storyAudit, int page, int pageSize) {
-		PageHelper.startPage(page, pageSize);
-		List<StoryAudit> storyAudits = storyAuditMapper.getStoryAuditsByCondition(storyAudit);
-		return storyAudits;
-	}
-
 	@Transactional
 	public boolean audit(String id, String reason, int op) {
 		Example auditExample = new Example(StoryAudit.class);
@@ -131,7 +125,7 @@ public class WebManagerService {
 	private StoryList storyAuditToStoryList(StoryAudit storyAudit) {
 		StoryList storyList = new StoryList();
 		storyList.setAuthor(storyAudit.getAuthor());
-		storyList.setAuthorId(storyAudit.getAuthorid());
+		storyList.setAuthorId(storyAudit.getAuthorId());
 		storyList.setBrief(storyAudit.getBrief());
 		storyList.setCreateTime(storyAudit.getCreateTime());
 		storyList.setId(storyAudit.getId());
@@ -162,9 +156,13 @@ public class WebManagerService {
 		StoryContent storyContent = new StoryContent();
 		storyContent.setId(Integer.valueOf(id));
 		
+		StoryAudit storyAudit = new StoryAudit();
+		storyAudit.setId(Integer.valueOf(id));
+		
 		storyListMapper.delete(storyList);
 		storyStatMapper.deleteByPrimaryKey(id);
 		storyContentMapper.delete(storyContent);
+		storyAuditMapper.delete(storyAudit);
 		return true;
 	}
 
@@ -366,5 +364,25 @@ public class WebManagerService {
 			}
 		}
 		return true;
+	}
+	
+	public List<StoryAudit> auditList(StoryAudit storyAudit, int page, int pageSize) {
+		PageHelper.startPage(page, pageSize);
+		List<StoryAudit> storyAudits = storyAuditMapper.getStoryAuditsByCondition(storyAudit);
+		return storyAudits;
+	}
+
+
+	public List<StoryList> storyList(StoryList storyList, int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		List<StoryList> stories = storyListMapper.select(storyList);
+		return stories;
+	}
+
+
+	public List<StoryList> storySearch(String keyWord, int pageNo, int pageSize) {
+		PageHelper.startPage(pageNo, pageSize);
+		List<StoryList> storyList = storyListMapper.searchStory(keyWord);
+		return storyList;
 	}
 }

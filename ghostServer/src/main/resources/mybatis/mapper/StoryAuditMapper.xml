@@ -13,7 +13,7 @@
     <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="brief" jdbcType="VARCHAR" property="brief" />
     <result column="status" jdbcType="CHAR" property="status" />
-    <result column="authorId" jdbcType="VARCHAR" property="authorid" />
+    <result column="author_id" jdbcType="VARCHAR" property="authorId" />
     <result column="reason" jdbcType="VARCHAR" property="reason" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
@@ -38,5 +38,14 @@
   	<if test="storyAudit.createDate1 != null">
   		and create_time &lt; #{storyAudit.createDate1}, 
   	</if>
+  	group by id;
+  </select>
+  
+  <select id="getStoryAudits" resultType="com.yesongdh.bean.StoryAudit">
+  	select * from story_audit where id in 
+  	<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+  		#{id}
+  	</foreach>
+  	and sub_id = 0
   </select>
 </mapper>

@@ -21,6 +21,7 @@ import com.yesongdh.bean.Admin;
 import com.yesongdh.bean.Permission;
 import com.yesongdh.bean.Role;
 import com.yesongdh.bean.StoryAudit;
+import com.yesongdh.bean.StoryList;
 import com.yesongdh.bean.StoryReport;
 import com.yesongdh.common.BaseResponse;
 import com.yesongdh.service.WebManagerService;
@@ -35,12 +36,15 @@ public class ManagerController extends BaseResponse{
 	@Resource
 	WebManagerService webManagerService;
 	
-	@ApiOperation(value = "待审查列表")
-	@PostMapping("/audit/list")
+	@ApiOperation(value = "文章列表")
+	@PostMapping("/story/list")
 	@ResponseBody
-	public JSONObject auditList(@RequestBody StoryAudit storyAudit,
-			@RequestParam("page") int page, @RequestParam("pageSize") int pageSize) {
-		return success(webManagerService.auditList(storyAudit, page, pageSize));
+	public JSONObject storyList(
+			@RequestBody StoryList storyList,
+			@RequestParam(required = true, name = "pageNo") int pageNo,
+			@RequestParam(required = false, name = "pageSize") int pageSize) {
+		List<StoryList> stories = webManagerService.storyList(storyList, pageNo, pageSize);
+		return success(stories);
 	}
 	
 	@ApiOperation(value = "审查")
@@ -51,6 +55,14 @@ public class ManagerController extends BaseResponse{
 			@RequestParam(required = true, name = "op") int op,
 			@RequestParam(required = false, name = "reason") String reason) {
 		return webManagerService.audit(id, reason, op) ? success() : fail("操作失败");
+	}
+	
+	@ApiOperation(value = "待审查列表")
+	@PostMapping("/audit/list")
+	@ResponseBody
+	public JSONObject auditList(@RequestBody StoryAudit storyAudit,
+			@RequestParam("page") int page, @RequestParam("pageSize") int pageSize) {
+		return success(webManagerService.auditList(storyAudit, page, pageSize));
 	}
 	
 	@ApiOperation(value = "举报列表")

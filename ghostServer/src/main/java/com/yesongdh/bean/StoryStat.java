@@ -142,4 +142,11 @@ public class StoryStat {
     public void setGmtCreate(Date gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
+    
+    public void setDefault() {
+    	this.collection = 0;
+    	this.thumbDown = 0;
+    	this.thumbUp = 0;
+    	this.score = 0;
+    }
 }

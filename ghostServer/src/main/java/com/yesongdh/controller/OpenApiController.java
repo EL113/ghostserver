@@ -1,11 +1,11 @@
 package com.yesongdh.controller;
 
+import java.util.List;
 import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 import com.yesongdh.annotation.IgnoreToken;
 import com.yesongdh.bean.StoryAudit;
+import com.yesongdh.bean.StoryList;
 import com.yesongdh.common.BaseResponse;
 import com.yesongdh.service.HomeService;
+import com.yesongdh.service.WebManagerService;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -27,6 +30,9 @@ public class OpenApiController extends BaseResponse{
 	
 	@Resource
 	HomeService homeService;
+	
+	@Resource
+	WebManagerService webManagerService;
 	
 	@ApiOperation(value = "首页推荐")
 	@GetMapping("/recommend")
@@ -51,7 +57,7 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "赞")
-	@PutMapping("/thumbUp")
+	@PostMapping("/thumbUp")
 	@IgnoreToken
 	@ResponseBody
 	public JSONObject thumbUp(
@@ -62,7 +68,7 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "踩")
-	@PutMapping("/thumbDown")
+	@PostMapping("/thumbDown")
 	@IgnoreToken
 	@ResponseBody
 	public JSONObject thumbDown(
@@ -73,7 +79,7 @@ public class OpenApiController extends BaseResponse{
 	}
 	
 	@ApiOperation(value = "收藏")
-	@PutMapping("/collect")
+	@PostMapping("/collect")
 	@IgnoreToken
 	@ResponseBody
 	public JSONObject collect(
@@ -100,4 +106,43 @@ public class OpenApiController extends BaseResponse{
 		return homeService.report(id, reason) ? success(id) : fail("操作失败");
 	}
 	
+	@ApiOperation(value = "检查文章是否通过")
+	@GetMapping("/audit/list")
+	@IgnoreToken
+	@ResponseBody
+	public JSONObject auditList(@RequestParam("ids") List<String> ids) {
+		return success(homeService.auditList(ids));
+	}
+	
+	@ApiOperation(value = "用户删除文章")
+	@PostMapping("/delete")
+	@IgnoreToken
+	@ResponseBody
+	public JSONObject storyDelete(@RequestParam(name="id", required=true) String id) {
+		return success(webManagerService.deleteStory(id));
+	}
+	
+	@ApiOperation(value = "文章列表")
+	@PostMapping("/story/list")
+	@IgnoreToken
+	@ResponseBody
+	public JSONObject storyList(
+			@RequestBody StoryList storyList,
+			@RequestParam(required = true, name = "pageNo") int pageNo,
+			@RequestParam(required = false, name = "pageSize") int pageSize) {
+		List<StoryList> stories = webManagerService.storyList(storyList, pageNo, pageSize);
+		return success(stories);
+	}
+	
+	@ApiOperation(value = "文章搜索")
+	@GetMapping("/story/search")
+	@IgnoreToken
+	@ResponseBody
+	public JSONObject storySearch(
+			@RequestParam(required = true, name = "keyword") String keyWord,
+			@RequestParam(required = true, name = "pageNo") int pageNo,
+			@RequestParam(required = false, name = "pageSize") int pageSize) {
+		List<StoryList> stories = webManagerService.storySearch(keyWord, pageNo, pageSize);
+		return success(stories);
+	}
 }

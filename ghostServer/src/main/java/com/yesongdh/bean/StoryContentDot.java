@@ -1,36 +1,72 @@
 package com.yesongdh.bean;
 
-import com.yesongdh.common.CommonPage;
+import java.util.List;
 
 public class StoryContentDot {
 	
-	private String storyContent;
+	private int thumbUp = 0;
+
+    private int thumbDown = 0;
+
+    private int collect = 0;
+    
+    private int maxPage = 0;
+
+    private int currentPage = 0;
+
+    private List<String> content;
 	
-	private StoryStat storyStat;
+	public void setStoryStat(StoryStat stat) {
+		this.thumbUp = stat.getThumbUp();
+		this.thumbDown = stat.getThumbDown();
+		this.collect = stat.getCollection();
+	}
 	
-	private CommonPage page;
-
-	public String getStoryContent() {
-		return storyContent;
+	public int getCollect() {
+		return collect;
+	}
+	
+	public void setCollect(int collect) {
+		this.collect = collect;
+	}
+    
+	public List<String> getContent() {
+		return content;
+	}
+	
+	public void setContent(List<String> content) {
+		this.content = content;
 	}
 
-	public void setStoryContent(String storyContent) {
-		this.storyContent = storyContent;
+	public int getThumbUp() {
+		return thumbUp;
 	}
 
-	public StoryStat getStoryStat() {
-		return storyStat;
+	public void setThumbUp(int thumbUp) {
+		this.thumbUp = thumbUp;
 	}
 
-	public void setStoryStat(StoryStat storyStat) {
-		this.storyStat = storyStat;
+	public int getThumbDown() {
+		return thumbDown;
 	}
 
-	public CommonPage getPage() {
-		return page;
+	public void setThumbDown(int thumbDown) {
+		this.thumbDown = thumbDown;
 	}
 
-	public void setPage(CommonPage page) {
-		this.page = page;
+	public int getMaxPage() {
+		return maxPage;
+	}
+
+	public void setMaxPage(int maxPage) {
+		this.maxPage = maxPage;
+	}
+
+	public int getCurrentPage() {
+		return currentPage;
+	}
+
+	public void setCurrentPage(int currentPage) {
+		this.currentPage = currentPage;
 	}
 }
