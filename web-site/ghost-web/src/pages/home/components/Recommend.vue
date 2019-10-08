@@ -21,14 +21,13 @@
                         <ul class="pagination">
                             <li class="page-item page-link" @click="firstPaget">首页</li>
                             <li class="page-item page-link" @click="prePage">
-                                <span aria-hidden="true">
-                                    <span class="lnr lnr-chevron-left"></span>
-                                </span>
+                                <font-awesome-icon icon="chevron-left"/>
                             </li>
                             <li v-for="pageItem in result.pageList" :key="pageItem" class="page-item page-link" @click="page">
                                 {{pageItem}}
                             </li>
-                            <li class="lnr lnr-chevron-right" @click="nextPage">
+                            <li class="page-item page-link" @click="prePage">
+                                <font-awesome-icon icon="chevron-right"/>
                             </li>
                         </ul>
                     </nav>
