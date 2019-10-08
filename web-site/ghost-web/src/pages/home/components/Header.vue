@@ -1,24 +1,24 @@
 <template>
-<div id="header">
-    <div class="container main-menu">
-        <div class="row align-items-center justify-content-between d-flex">
-            <div id="logo">
-                <a href="index.html" class="nav-brand fz-18">夜半故事</a>
-            </div>
-            <div class="row align-items-center">
-                <nav id="nav-menu-container">
-                    <ul class="nav-menu">
-                        <li><a href="#home">首页</a></li>
-                        <li><a href="#category">分类</a></li>
-                        <li><a href="#recommend">推荐</a></li>
-                        <li><a href="#project">app下载</a></li>
-                    </ul>
-                </nav>
-                <a href="/ghostServer/edit.html" class="genric-btn primary circle ml-20">分享故事</a>
+    <div id="header">
+        <div class="container main-menu">
+            <div class="row align-items-center justify-content-between d-flex">
+                <div id="logo">
+                    <a href="index.html" class="nav-brand fz-18">夜半故事</a>
+                </div>
+                <div class="row align-items-center">
+                    <nav id="nav-menu-container">
+                        <ul class="nav-menu">
+                            <li><a href="#home">首页</a></li>
+                            <li><a href="#category">分类</a></li>
+                            <li><a href="#recommend">推荐</a></li>
+                            <li><a href="#project">app下载</a></li>
+                        </ul>
+                    </nav>
+                    <a href="/ghostServer/edit.html" class="genric-btn primary circle ml-20">分享故事</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </template>
 
 <script>
