@@ -32,7 +32,7 @@ export default {
     requestHomeInfo () {
       axios.get('/recommend', {
         pageNo: 0,
-        pageSize: 25,
+        pageSize: 25
       }).then(this.homeInfoHandle)
     },
     homeInfoHandle (data) {
