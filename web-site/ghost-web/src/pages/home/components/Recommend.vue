@@ -6,13 +6,13 @@
             </div>
             <div class="row">
                 <div class="col-lg-8 offset-lg-3 posts-list">
-                    <div v-for="item in result.list" :key="item.id" class="single-post row">
+                    <div v-for="item in list" :key="item.id" class="single-post row">
                         <div class="col-lg-9 col-md-9">
                             <router-link :to="{ path: 'detail', query: { type: item.type, id: item.id} }" class="posts-title">
                                 <h3>{{item.title}}</h3>
                             </router-link>
                             <p class="excert">
-                                {{item.desc}}
+                                {{item.brief}}
                             </p>
                         </div>
                     </div>
@@ -23,7 +23,7 @@
                             <li class="page-item page-link">
                                 <font-awesome-icon icon="chevron-left" @click="prePage"/>
                             </li>
-                            <li v-for="pageItem in result.pageList" :key="pageItem" class="page-item page-link" @click="toPage">
+                            <li v-for="pageItem in pageList" :key="pageItem" class="page-item page-link" @click="toPage">
                                 {{pageItem}}
                             </li>
                             <li class="page-item page-link">
@@ -40,23 +40,13 @@
 <script>
 export default {
   name: 'Recommend',
+  props: {
+    list: Array
+  },
   data () {
     return {
-      result: {
-        list:
-        [
-          {
-            title: 'title1',
-            desc: 'desc',
-            id: 0,
-            type: 'xy'
-          }
-        ],
-        pageList:
-        [
-          1, 2, 3, '...', 15, 16, 17
-        ]
-      }
+      pageList: [ 1, 2, 3, 4 ]
+      // result: this.list
     }
   },
   methods: {
