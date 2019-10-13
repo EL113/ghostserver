@@ -19,15 +19,15 @@
 
                     <nav class="blog-pagination justify-content-center d-flex">
                         <ul class="pagination">
-                            <li class="page-item page-link" @click="firstPaget">首页</li>
-                            <li class="page-item page-link" @click="prePage">
-                                <font-awesome-icon icon="chevron-left"/>
+                            <li class="page-item page-link" @click="firstPage">首页</li>
+                            <li class="page-item page-link">
+                                <font-awesome-icon icon="chevron-left" @click="prePage"/>
                             </li>
-                            <li v-for="pageItem in result.pageList" :key="pageItem" class="page-item page-link" @click="page">
+                            <li v-for="pageItem in result.pageList" :key="pageItem" class="page-item page-link" @click="toPage">
                                 {{pageItem}}
                             </li>
-                            <li class="page-item page-link" @click="prePage">
-                                <font-awesome-icon icon="chevron-right"/>
+                            <li class="page-item page-link">
+                                <font-awesome-icon icon="chevron-right" @click="nextPage"/>
                             </li>
                         </ul>
                     </nav>
@@ -57,6 +57,20 @@ export default {
           1, 2, 3, '...', 15, 16, 17
         ]
       }
+    }
+  },
+  methods: {
+    firstPage () {
+      return 0
+    },
+    prePage () {
+      return 0
+    },
+    nextPage () {
+      return 0
+    },
+    toPage () {
+      return 0
     }
   }
 }
