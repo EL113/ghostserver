@@ -23,7 +23,7 @@
                             <li class="page-item page-link">
                                 <font-awesome-icon icon="chevron-left" @click="prePage"/>
                             </li>
-                            <li v-for="pageItem in pageList" :key="pageItem" class="page-item page-link" @click="toPage">
+                            <li v-for="pageItem in pageList" :key="pageItem" class="page-item page-link" @click="toPage(pageItem)">
                                 {{pageItem}}
                             </li>
                             <li class="page-item page-link">
@@ -38,30 +38,55 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'Recommend',
-  props: {
-    list: Array
-  },
   data () {
     return {
-      pageList: [ 1, 2, 3, 4 ]
-      // result: this.list
+      pageNo: 1,
+      pageList: [ 1, 2, 3, 4 ],
+      list: []
     }
   },
   methods: {
+    requestHomeInfo () {
+      axios.get('/openapi/recommend', {
+        params: {
+          pageNo: this.pageNo,
+          pageSize: 2
+        }
+      }).then(this.homeInfoHandle)
+    },
+    homeInfoHandle (data) {
+      if (data.status !== 200) {
+        return
+      }
+      console.log(this.pageNo)
+      this.list = data.data.result
+    },
     firstPage () {
-      return 0
+      this.pageNo = 1
     },
     prePage () {
-      return 0
+      if (this.pageNo > 1) {
+        this.pageNo--
+      }
     },
     nextPage () {
-      return 0
+      this.pageNo++
     },
-    toPage () {
-      return 0
+    toPage (pageNo) {
+      this.pageNo = pageNo
     }
+  },
+  watch: {
+    pageNo () {
+      this.requestHomeInfo()
+    }
+  },
+  mounted () {
+    this.requestHomeInfo()
   }
 }
 </script>
