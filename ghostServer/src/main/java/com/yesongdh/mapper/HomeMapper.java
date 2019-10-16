@@ -9,4 +9,6 @@ public interface HomeMapper {
 	@Select("select story_list.* from story_list inner join story_stat where story_list.id = story_stat.id order by story_stat.score desc")
 	List<StoryList> getStoryListByStatOrder();
 	
+	@Select("select count(1) from story_list inner join story_stat where story_list.id = story_stat.id order by story_stat.score desc")
+	Integer getStoryListByStatOrderCount();
 }

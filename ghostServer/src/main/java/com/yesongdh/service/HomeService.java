@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.yesongdh.bean.StoryAudit;
@@ -47,11 +49,16 @@ public class HomeService {
 	@Autowired
 	StoryReportMapper storyReportMapper;
 
-	public List<StoryList> getRecommend(int pageNo, int pageSize) {
+	public JSONObject getRecommend(int pageNo, int pageSize) {
+		JSONObject result = new JSONObject();
 		PageHelper.startPage(pageNo, pageSize);
 		List<StoryList> stats = homeMapper.getStoryListByStatOrder();
+		Integer statsCount = homeMapper.getStoryListByStatOrderCount();
+		int maxPageNo = statsCount / pageSize;
 		
-		return stats;
+		result.put("list", stats);
+		result.put("maxPageNo", maxPageNo);
+		return result;
 	}
 
 	public StoryContentDot getContent(String id,String type, int pageNo, int pageSize) {
