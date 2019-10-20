@@ -7,7 +7,7 @@
         <div class="col-lg-8 offset-lg-3 posts-list">
           <div v-for="item in list" :key="item.id" class="single-post row">
             <div class="col-lg-9 col-md-9">
-              <router-link :to="{ path: 'detail', query: { type: item.type, id: item.id} }" class="posts-title">
+              <router-link :to="{ path: '/detail', query: { story_item: item } }" class="posts-title">
                 <h3>{{item.title}}</h3>
               </router-link>
               <p class="excert">
@@ -23,7 +23,8 @@
                 <font-awesome-icon icon="chevron-left" @click="prePage"/>
               </li>
               <li v-for="pageItem in pageList" :key="pageItem" @click="toPage(pageItem)">
-                <div v-if="pageItem === pageNo" class="page-item page-link" style="background-color:#8490ff;color:#fff">
+                <div v-if="pageItem === pageNo" class="page-item page-link"
+                  style="background-color:#8490ff;color:#fff">
                   {{pageItem}}
                 </div>
                 <div v-else class="page-item page-link">
@@ -79,7 +80,6 @@ export default {
       } else if (this.pageNo > this.maxPageNo - 5) {
         this.pageList = range(this.maxPageNo - 4, this.maxPageNo, 1)
       }
-      console.log(this.pageList)
     },
     firstPage () {
       this.pageNo = 1
@@ -108,7 +108,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>
